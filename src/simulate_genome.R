@@ -9,10 +9,10 @@ drepeat <- paste0(rep(c("ATCG", "CGTA", "GTAC", "TGCA"), each = 1), collapse = "
 longrepeat <- paste0(rep(c("GGGGGGGGGG", "AAAAAAAAAAAAAAAA","CCCCCCCCCCC","TTTTTTTTTTT"), each = 1), collapse = "")
 
 # Define frequencies of each repeat type
-monorepeat_freq <- 0.01
-direpeat_freq <- 0.01
-trirepeat_freq <- 0.01
-drepeat_freq <- 0.01
+monorepeat_freq <- 0.0
+direpeat_freq <- 0.0
+trirepeat_freq <- 0.0
+drepeat_freq <- 0.0
 longrepeat_freq <- 0.01
 nonrepeat_freq <- 1 - monorepeat_freq - direpeat_freq - trirepeat_freq - drepeat_freq - longrepeat_freq
 
@@ -21,7 +21,8 @@ repeats <- c(monorepeats, direpeats, trirepeats, drepeat, longrepeat)
 repeat_freqs <- c(monorepeat_freq, direpeat_freq, trirepeat_freq, drepeat_freq, longrepeat_freq)
 seq <- sample(repeats, 100, replace = TRUE, prob = repeat_freqs)
 seq <- paste(seq, collapse = "")
-seq <- paste(sample(c(rep("N", 60)), 1), seq, sample(c(rep("N", 60)), 1), sep = "")
+#seq <- paste(sample(c(rep("N", 60)), 1), seq, sample(c(rep("N", 60)), 1), sep = "")
+seq
 
 # Sequence name and description
 seqname <- "Simulated1"
