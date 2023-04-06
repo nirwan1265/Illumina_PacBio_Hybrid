@@ -1,11 +1,11 @@
-<<<<<<< HEAD
+
 # First create conda environment
 # > conda create -n reseq_simulate_illumina
 # > conda activate reseq_simulate_illumina
 
 # Second install the reseq
 # > conda install -c bioconda -c conda-forge reseq
-=======
+
 # installation protocols followed using this website:
 # https://github.com/scchess/Art/blob/master/art_illumina_README
 
@@ -33,4 +33,4 @@
 # - o is the output
 # -p for paired ends
 # -m the mean size of DNA/RNA fragments for paired-end simulations
->>>>>>> f66af852dce60c117fdba841ed68500960edf976
+
