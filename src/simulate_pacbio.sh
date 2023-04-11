@@ -14,3 +14,4 @@ pbsim --strategy wgs --method errhmm --errhmm data/ERRHMM-RSII.model --depth 10 
 # length-min = ( min 100)
 # length-max = (max 1000000)
 # --accuracy-min = ( min 0.75)
+
