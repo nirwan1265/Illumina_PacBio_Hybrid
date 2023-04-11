@@ -24,7 +24,7 @@
 # ./art_illumina
 
 # to run the simulation
-./art_illumina -ss NS50 -sam -i simluated_genome/simulated1.fa -l 50 -f 10 -p -o illumina_simulated
+./art_illumina -ss NS50 -sam -i simluated_genome/simulated_genome_100kb.fa -l 50 -m 60 -s 10 -f 10 -p -o illumina_simulated_500kb_l50_c10_pe
 
 # -ss is the type of illumina machine
 # i is the simulated reference file

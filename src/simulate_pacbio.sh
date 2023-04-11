@@ -5,7 +5,7 @@
 # > make install
 # > pbsim -h
 
-pbsim --strategy wgs --method errhmm --errhmm data/ERRHMM-RSII.model --depth 20 --genome sample/sample.fasta
+pbsim --strategy wgs --method errhmm --errhmm data/ERRHMM-RSII.model --depth 10 --length-min 10000 --length-max 12000 --genome simulated_genome/simulate_genome_500kb.fa
 
 # strategy = wgs
 # method = errhmm (error model)
