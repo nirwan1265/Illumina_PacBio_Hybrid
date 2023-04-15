@@ -1,35 +1,33 @@
-# Simulate a genome
-set.seed(123)
+generate_random_genome_sequence <- function(l, r, m, n) {
+  # Create a vector of all possible DNA bases
+  all_bases <- c("A", "C", "G", "T")
+  
+  # Generate a vector of random DNA bases
+  genome_sequence <- sample(all_bases, l, replace = TRUE)
+  
+  # Determine the indices to insert the repeat
+  repeat_indices <- sample(1:(l - (n * length(r) * m)), n, replace = FALSE)
+  repeat_indices <- sort(repeat_indices)
+  
+  # Insert the repeat at the specified indices
+  for(i in 1:n) {
+    repeat_start_index <- repeat_indices[i] + ((i - 1) * length(r) * m)
+    repeat_end_index <- repeat_start_index + (length(r) * m) - 1
+    genome_sequence[repeat_start_index:repeat_end_index] <- rep(r, each = m)
+  }
+  
+  # Collapse the vector into a single string
+  genome_sequence_string <- paste(genome_sequence, collapse = "")
+  
+  return(genome_sequence_string)
+}
 
-# Define repeat sequences
-random_nucleotides <- c("A", "T", "C", "G")
-direpeats <- paste0(rep(c("AT", "TC", "CG", "GA"), each = 1), collapse = "")
-trirepeats <- paste0(rep(c("ATC", "CGT", "TAC", "GCA"), each = 1), collapse = "")
-quadrepeats <- paste0(rep(c("ATCG", "CGTA", "GTAC", "TGCA"), each = 1), collapse = "")
-longdirepeat <- paste0(rep(c("GT"), times = 60), collapse = "")
-#nonrepeat <- "N"
-
-# Define frequencies of each repeat type
-#random_nucleotide_freq <- 0.4
-direpeat_freq <- 0.1
-trirepeat_freq <- 0.1
-quadrepeat_freq <- 0.1
-longdirepeat_freq <- 0.01
-random_nucleotide_freq <- 1 - random_nucleotide_freq - direpeat_freq - trirepeat_freq - quadrepeat_freq - longdirepeat_freq
-
-# Simulating the genome based on the frequencies
-repeats <- c(random_nucleotides, direpeats, trirepeats, quadrepeats, longdirepeat)
-repeat_freqs <- c(rep(random_nucleotide_freq/4, 4), direpeat_freq, trirepeat_freq, quadrepeat_freq, longdirepeat_freq)
-seq <- sample(repeats, 500000, replace = TRUE, prob = repeat_freqs)
-seq <- paste(seq, collapse = "")
-seq
-
-
+random_seq <- generate_random_genome_sequence(500, "ATGC", 7, 3)
 
 
 # Sequence name and description
 seqname <- "Simulated_genome"
 
 # Saving a fasta file
-write.fasta(sequences = seq, names = seqname, file.out = "simulated_reference/simulated_genome.fa")
+write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_reference/simulated_genome.fa")
 
