@@ -22,12 +22,13 @@ generate_random_genome_sequence <- function(l, r, m, n) {
   return(genome_sequence_string)
 }
 
-random_seq <- generate_random_genome_sequence(500, "ATGC", 7, 3)
+random_seq <- generate_random_genome_sequence(500000, "ATTGGTTA", 1000, 200)
 
 
+setwd("~/Desktop/simulated_genome/reference")
 # Sequence name and description
 seqname <- "Simulated_genome"
 
 # Saving a fasta file
-write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_reference/simulated_genome.fa")
+write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_genome_500k_ATTGGTTA_1000_200.fa")
 
