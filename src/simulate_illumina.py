@@ -34,3 +34,22 @@
 # -p for paired ends
 # -m the mean size of DNA/RNA fragments for paired-end simulations
 
+# To run all the files, do this loop
+#!/bin/zsh
+
+# set the input and output directory paths
+input_dir="reference"
+output_dir="results"
+
+# loop through each file in the input directory
+for file in "${input_dir}"/*
+do
+  # get the filename without the path or extension
+  filename=$(basename "${file}")
+  filename="${filename%.*}"
+
+  # run the command with the current input file and output filename
+  ./art_illumina -ss NS50 -sam -i "${file}" -l 50 -m 60 -s 10 -f 10 -p -o "${output_dir}/illumina_simulated_l50_c30_${filename}_pe"
+done
+
+
