@@ -32,3 +32,9 @@ seqname <- "Simulated_genome"
 # Saving a fasta file
 write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_genome_500k_ATTGGTTA_1000_200.fa")
 
+
+generate_random_genome_sequence(l, r, m, n)
+l = (numeric) length of the genome, e.g. 500000
+r = (character) repeat string, e.g. "AT" or "ATTGC"
+m = (numeric) length of the repeat, e.g. 3, so if you do r = "AT", and m = 3 your repeat will be "ATATAT"
+n = (numeric) times you will see the repeats, e.g. n = 4 you will se "ATATAT" 4 times randomly in your genome
