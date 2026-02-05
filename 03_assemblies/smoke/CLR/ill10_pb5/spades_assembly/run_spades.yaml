@@ -1,0 +1,96 @@
+- STAGE: Before start
+  args: []
+  config_dir: ''
+  del_after: []
+  job_uuid: SPAdes_Before_start_8TJ2SUR83D57C7XG0JR927N5S1YKCSNL
+  mpi_support: false
+  output_files: []
+  path: 'true'
+  short_name: before_start
+- STAGE: Assembling
+  args: []
+  config_dir: ''
+  del_after: []
+  job_uuid: SPAdes_Assembling_U6IOLO9XFLTNTXI3JTQEIRCIR53OBUX3
+  mpi_support: false
+  output_files: []
+  path: 'true'
+  short_name: as_start
+- STAGE: K27
+  args:
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/configs/config.info
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/configs/isolate_mode.info
+  config_dir: K27
+  del_after: []
+  job_uuid: hpcSPAdes_K27_USAWWZ8QEJ2VXV1R45NWQVWBP13IG6E0
+  mpi_support: true
+  output_files: []
+  path: /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/.conda_envs/hybridseq/bin/{spades_core}
+  short_name: k27
+- STAGE: Copy files
+  args:
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/.conda_envs/hybridseq/share/spades/spades_pipeline/scripts/copy_files.py
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/before_rr.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/before_rr.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/assembly_graph_after_simplification.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/assembly_graph_after_simplification.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/final_contigs.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/contigs.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/first_pe_contigs.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/first_pe_contigs.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/strain_graph.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/strain_graph.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/scaffolds.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/scaffolds.fasta
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/scaffolds.paths
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/scaffolds.paths
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/assembly_graph_with_scaffolds.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/assembly_graph_with_scaffolds.gfa
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/assembly_graph.fastg
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/assembly_graph.fastg
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/K27/final_contigs.paths
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/contigs.paths
+  config_dir: ''
+  del_after:
+  - .bin_reads
+  - tmp/spades_i8x6l9rj
+  job_uuid: SPAdes_Copy_files_H04YXQ8YBLLEBHI9A2CU5Y9NBVVVU4MZ
+  mpi_support: false
+  output_files: []
+  path: /opt/homebrew/opt/python@3.13/bin/python3.13
+  short_name: copy_files
+- STAGE: Assembling
+  args: []
+  config_dir: ''
+  del_after: []
+  job_uuid: SPAdes_Assembling_B8DTVWOWXGJWR60S29MENJ5ZWZQLE9DK
+  mpi_support: false
+  output_files: []
+  path: 'true'
+  short_name: as_finish
+- STAGE: Breaking scaffolds
+  args:
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/.conda_envs/hybridseq/share/spades/spades_pipeline/scripts/breaking_scaffolds_script.py
+  - --result_scaffolds_filename
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/scaffolds.fasta
+  - --misc_dir
+  - /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/misc
+  - --threshold_for_breaking_scaffolds
+  - '3'
+  config_dir: ''
+  del_after: []
+  job_uuid: SPAdes_Breaking_scaffolds_FM14TCYXG1NWRM1RTI534UJKOKIX3J6W
+  mpi_support: false
+  output_files: []
+  path: /opt/homebrew/opt/python@3.13/bin/python3.13
+  short_name: bs
+- STAGE: Terminate
+  args: []
+  config_dir: ''
+  del_after:
+  - configs
+  job_uuid: SPAdes_Terminate_JB0OJ2ERZV070W6NQWT8JPASWH71HLO9
+  mpi_support: false
+  output_files: []
+  path: 'true'
+  short_name: terminate

@@ -1,0 +1,7 @@
+- "left reads":
+  - "/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_1.fq.gz"
+  "number": !!int "1"
+  "orientation": "fr"
+  "right reads":
+  - "/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_2.fq.gz"
+  "type": "paired-end"

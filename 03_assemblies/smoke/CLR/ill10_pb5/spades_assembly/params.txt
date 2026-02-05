@@ -1,0 +1,33 @@
+Command line: /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/.conda_envs/hybridseq/bin/spades.py	-o	/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly	-k	27	--threads	2	--gfa11	--isolate	-1	/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_1.fq.gz	-2	/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_2.fq.gz	-m	1024	
+
+System information:
+  SPAdes version: 4.2.0
+  Python version: 3.13.0
+  OS: macOS-14.3-arm64-arm-64bit-Mach-O
+
+Output dir: /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly
+Mode: ONLY assembling (without read error correction)
+Debug mode is turned OFF
+
+Dataset parameters:
+  Isolate mode
+  Reads:
+    Library number: 1, library type: paired-end
+      orientation: fr
+      left reads: ['/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_1.fq.gz']
+      right reads: ['/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_2.fq.gz']
+      interlaced reads: not specified
+      single reads: not specified
+      merged reads: not specified
+Assembly parameters:
+  k: [27]
+  Repeat resolution is enabled
+  Mismatch careful mode is turned OFF
+  MismatchCorrector will be SKIPPED
+  Coverage cutoff is turned OFF
+  Assembly graph output will use GFA v1.1 format
+Other parameters:
+  Dir for temp files: /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly/tmp
+  Threads: 2
+  Memory limit (in Gb): 1024
+

@@ -23,3 +23,13 @@ gnuplot AT_200_50_alignment.1to1.gp
 ps2pdf AT_200_50_alignment.1to1.ps AT_200_50_alignment.1to1.pdf
 
 open the pdf file
+
+
+
+
+./nucmer --maxmatch simulated_genome_50k_AT_1000_1.fa scaffolds_illuminaonly.fasta -p AT_1000_1_alignment
+./delta-filter -1 AT_1000_1_alignment.delta > AT_1000_1_alignment_1to1.delta
+./mummerplot --large --layout --filter --postscript AT_1000_1_alignment_1to1.delta -p AT_1000_1_alignment_1to1
+gnuplot AT_1000_1_alignment_1to1.gp
+ps2pdf AT_1000_1_alignment_1to1.ps AT_1000_1_alignment_1to1.pdf
+

@@ -1,0 +1,38 @@
+
+Starting Unicycler (2026-02-04 16:51:15)
+----------------------------------------
+    Welcome to Unicycler, an assembly pipeline for bacterial genomes. Since you provided both short and long reads, Unicycler will perform a hybrid assembly. It will first use SPAdes to make a short-read assembly graph, and then it will use various methods to scaffold that graph with the long reads.
+    For more information, please see https://github.com/rrwick/Unicycler
+
+Command: "/Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/.conda_envs/hybridseq/bin/unicycler" -1 02_reads/smoke/illumina/smoke.ill_cov10_1.fq.gz -2 02_reads/smoke/illumina/smoke.ill_cov10_2.fq.gz -l 02_reads/smoke/pacbio_CLR/cov5/pbCLR_cov5_0001.fq.gz -o 03_assemblies/smoke/CLR/ill10_pb5 -t 2 --mode normal --verbosity 1
+
+Unicycler version: v0.5.1
+Using 2 threads
+
+The output directory already exists:
+  /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5
+
+Dependencies:
+  Program       Version   Status
+  spades.py     4.2.0     good  
+  racon         1.5.0     good  
+  makeblastdb   2.16.0+   good  
+  tblastn       2.16.0+   good  
+
+
+Choosing k-mer range for assembly (2026-02-04 16:51:15)
+-------------------------------------------------------
+    Unicycler chooses a k-mer range for SPAdes based on the length of the input reads. It uses a wide range of many k-mer sizes to maximise the chance of finding an ideal assembly.
+
+SPAdes maximum k-mer: 127
+Median read length: 150
+K-mer range: 27, 53, 71, 87, 99, 111, 119, 127
+
+
+SPAdes assemblies (2026-02-04 16:51:15)
+---------------------------------------
+    Unicycler now uses SPAdes to assemble the short reads. It scores the assembly graph for each k-mer using the number of contigs (fewer is better) and the number of dead ends (fewer is better). The score function is 1/(c*(d+2)), where c is the contig count and d is the dead end count.
+
+spades.py -o /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/03_assemblies/smoke/CLR/ill10_pb5/spades_assembly -k 27 --threads 2 --gfa11 --isolate -1 /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_1.fq.gz -2 /Users/nirwantandukar/Library/Mobile Documents/com~apple~CloudDocs/Github/Illumina_PacBio_Hybrid/02_reads/smoke/illumina/smoke.ill_cov10_2.fq.gz -m 1024
+Error: SPAdes encountered an error:
+

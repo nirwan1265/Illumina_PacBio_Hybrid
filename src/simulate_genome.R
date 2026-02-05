@@ -22,16 +22,17 @@ generate_random_genome_sequence <- function(l, r, m, n) {
   return(genome_sequence_string)
 }
 
-random_seq <- generate_random_genome_sequence(200000, "AT", 10000, 5)
+random_seq <- generate_random_genome_sequence(100000, "ATTA", 1000, 5)
 
 
-setwd("~/Desktop/simulated_genome/reference")
+setwd("~/Desktop/simulated_genome/reduced_reads")
+setwd("~/Desktop/")
 # Sequence name and description
 seqname <- "Simulated_genome"
 
 library(seqinr)
 # Saving a fasta file
-write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_genome_200k_AT_10000_5.fa")
+write.fasta(sequences = random_seq, names = seqname, file.out = "simulated_genome_100k_ATTA_1000_5.fa")
 
 
 generate_random_genome_sequence(l, r, m, n)

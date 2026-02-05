@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Conda environments / caches
+.conda_envs/
+.conda_pkgs/
