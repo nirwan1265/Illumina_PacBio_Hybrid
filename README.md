@@ -1,5 +1,14 @@
 # Illumina_PacBio_Hybrid
 
+## Introduction
+This project benchmarks hybrid assembly performance across Illumina short reads and PacBio long reads (CLR and HiFi/CCS). The goal is to simulate controlled bacterial genomes, generate read sets across coverage grids, assemble with Unicycler, and evaluate accuracy/contiguity with QUAST. The resulting summaries let you identify minimum coverage combinations that meet quality thresholds for assembly.
+
+Key goals:
+- Simulate repeat‑stress bacterial references for controlled benchmarking
+- Compare CLR vs HiFi under identical Illumina coverage
+- Quantify assembly quality (N50, errors, genome fraction, misassemblies)
+- Produce tables for downstream Pareto/threshold analysis
+
 This repo contains a Mac‑friendly and HPC‑friendly **hybrid simulation → assembly → evaluation** pipeline for bacterial genomes (E. coli–like). It simulates **Illumina PE** reads, **PacBio CLR + HiFi/CCS** reads, runs **Unicycler** hybrid assembly, and evaluates assemblies with **QUAST**.
 
 The scripts are sequentially numbered so you always know what to run first.
