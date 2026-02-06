@@ -30,79 +30,81 @@ These are created by the scripts as needed:
 - `scripts/hpc` HPC scripts
 
 ## Scripts (Mac)
-Run in order:
-(R version of step 01 is preferred)
-1. `scripts/mac/00_setup_conda.sh`
-2. `scripts/mac/01_make_tandem_repeats.R` (preferred) or `scripts/mac/01_make_tandem_repeats.py`
-3. `scripts/mac/01b_generate_annotations.R` (optional annotations)
-4. `scripts/mac/01d_fetch_ref_files.sh` (optional ref downloads)
-5. `scripts/mac/02_sim_illumina_art.sh`
-6. `scripts/mac/03_sim_pacbio.sh`
-7. `scripts/mac/04_run_grid_both_pacbio.sh`
-8. `scripts/mac/05_run_unicycler_grid_both.sh`
-9. `scripts/mac/06_run_quast_both.sh`
+Run in order (R only):
+1. `scripts/mac/01_make_tandem_repeats.R`
+2. `scripts/mac/01b_generate_annotations.R` (optional annotations)
+3. `scripts/mac/01c_fetch_marker_panel.R` (optional markers download)
+4. `scripts/mac/01d_fetch_ref_files.R` (optional reference downloads)
+5. `scripts/mac/02_sim_illumina_art.R`
+6. `scripts/mac/03_sim_pacbio.R`
+7. `scripts/mac/04_run_grid_both_pacbio.R`
+8. `scripts/mac/05_run_unicycler_grid_both.R`
+9. `scripts/mac/06_run_quast_both.R`
 10. `scripts/mac/07_summarize_quast.R`
-11. `scripts/mac/08_smoke_test.sh` (optional quick check)
-12. `scripts/mac/09_rnaseq_stub.sh` (RNA-seq placeholder)
-13. `scripts/mac/10_simulate_gwas_cohort.R` (GWAS cohort simulator)
-14. `scripts/mac/11a_generate_random_haplotype_panel.R` (random haplotype panel)
-15. `scripts/mac/11_simulate_breeding.R` (breeding simulator)
+11. `scripts/mac/10_simulate_gwas_cohort.R` (GWAS cohort simulator)
+12. `scripts/mac/11a_generate_random_haplotype_panel.R` (random haplotype panel)
+13. `scripts/mac/11_simulate_breeding.R` (breeding simulator)
+14. `scripts/mac/12_simupop_api.R` (SimuPOP R API)
 
 ## Scripts (HPC)
-The same logic lives in `scripts/hpc` with identical numbers except the conda setup and smoke test. `scripts/hpc/01d_fetch_ref_files.sh` is also provided.
+Same R scripts exist under `scripts/hpc`.
 
 ## Quick start (Mac)
 Create a conda env locally in the repo (no global writes):
 
 ```bash
-scripts/mac/00_setup_conda.sh hybridseq .conda_envs
+conda create -n simitall -y -c conda-forge -c bioconda \
+  r-base r-jsonlite r-reticulate r-optparse \
+  art pbsim unicycler quast samtools seqkit pigz simupop
+```
+
+Activate:
+```bash
+conda activate simitall
 ```
 
 Place a reference genome FASTA at:
 `00_ref/ecoli.fa`
 
 Create a repeat‑stress reference:
-
-```bash
-scripts/mac/01_make_tandem_repeats.py \
-  --in_fa 00_ref/ecoli.fa \
-  --out_fa 01_simref/ecoli_repMed.fa \
-  --n_events 15 --seg_len 1000 --copies 5 --seed 1
+```r
+source("scripts/mac/01_make_tandem_repeats.R")
+# run via CLI style
+system("scripts/mac/01_make_tandem_repeats.R --in_fa 00_ref/ecoli.fa --out_fa 01_simref/ecoli_repMed.fa --n_events 15 --seg_len 1000 --copies 5 --seed 1")
 ```
 
 Simulate reads (Illumina + CLR + HiFi):
-
-```bash
-scripts/mac/04_run_grid_both_pacbio.sh 01_simref/ecoli_repMed.fa ecoli_repMed
+```r
+source("scripts/mac/04_run_grid_both_pacbio.R")
+run_grid_both("01_simref/ecoli_repMed.fa", "ecoli_repMed")
 ```
 
 Assemble hybrid grids:
-
-```bash
-scripts/mac/05_run_unicycler_grid_both.sh ecoli_repMed 4
+```r
+source("scripts/mac/05_run_unicycler_grid_both.R")
+run_unicycler_grid("ecoli_repMed", threads = 4)
 ```
 
 Run QUAST:
-
-```bash
-scripts/mac/06_run_quast_both.sh ecoli_repMed
+```r
+source("scripts/mac/06_run_quast_both.R")
+run_quast_grid("ecoli_repMed")
 ```
 
 Summarize:
-
-```bash
-scripts/mac/07_summarize_quast.R 04_eval/ecoli_repMed/CLR  05_summary/ecoli_repMed.CLR.quast_summary.csv
-scripts/mac/07_summarize_quast.R 04_eval/ecoli_repMed/HIFI 05_summary/ecoli_repMed.HIFI.quast_summary.csv
+```r
+system("scripts/mac/07_summarize_quast.R 04_eval/ecoli_repMed/CLR 05_summary/ecoli_repMed.CLR.quast_summary.csv")
+scripts/mac/07_summarize_quast.R 04_eval/ecoli_repMed/HIFI 05_summary/ecoli_repMed.HIFI.quast_summary.csv")
 ```
-
-
 
 ## Reference FASTA panel (optional)
 You can download single‑chromosome references into `inst/extdata/ref_files`:
 
-```bash
-scripts/mac/01d_fetch_ref_files.sh inst/extdata/ref_files
+```r
+system("scripts/mac/01d_fetch_ref_files.R inst/extdata/ref_files")
 ```
+
+
 
 This fetches:
 - E. coli K‑12 MG1655 chromosome (NC_000913.3)
@@ -133,15 +135,15 @@ Regulatory panel TSV columns:
 - Use `--regulatory_default_human` to apply the default human panel from `data/regulatory_panel_human.tsv`
 - Or provide your own panel with `--regulatory_panel` and optional `--regulatory_fa`
 
-```bash
-scripts/mac/01b_generate_annotations.R \
+```r
+system("scripts/mac/01b_generate_annotations.R \
   --genome_fa 01_simref/ecoli_repMed.fa \
   --out_gff3 01_simref/ecoli_repMed.gff3 \
   --genes_fa 01_simref/ecoli_repMed.genes.fa \
   --cds_fa 01_simref/ecoli_repMed.cds.fa \
   --promoters_fa 01_simref/ecoli_repMed.promoters.fa \
   --tss_tsv 01_simref/ecoli_repMed.tss.tsv \
-  --operons_tsv 01_simref/ecoli_repMed.operons.tsv
+  --operons_tsv 01_simref/ecoli_repMed.operons.tsv")
 ```
 
 
@@ -150,6 +152,10 @@ The annotation script can insert antibiotic marker genes on plasmids.
 You can use a quick random panel (length-based) or a curated FASTA.
 
 To build the curated FASTA from public accessions:
+
+```r
+system("scripts/mac/01c_fetch_marker_panel.R data/markers_curated.tsv data/markers_curated.fa")
+```
 
 Default panel in `data/markers_curated.tsv` includes:
 
@@ -173,21 +179,21 @@ flowchart LR
 - `TetA/TetR` (J01830)
 
 
-```bash
-scripts/mac/01c_fetch_marker_panel.sh data/markers_curated.tsv data/markers_curated.fa
-```
+
 
 Then enable markers in `01b_generate_annotations.R`:
 
-```bash
-scripts/mac/01b_generate_annotations.R   --genome_fa 01_simref/ecoli_repMed.fa   --out_gff3 01_simref/ecoli_repMed.gff3   --plasmid_count 2   --plasmid_fa_out 01_simref/plasmids.fa   --plasmid_gff3_out 01_simref/plasmids.gff3   --marker_mode both   --markers_fa data/markers_curated.fa   --markers_per_plasmid 2   --marker_insert_mode replace
-```
-
-## Smoke test (Mac)
-A fast, minimal end‑to‑end run:
-
-```bash
-scripts/mac/08_smoke_test.sh hybridseq smoke 2 .conda_envs
+```r
+system("scripts/mac/01b_generate_annotations.R \
+  --genome_fa 01_simref/ecoli_repMed.fa \
+  --out_gff3 01_simref/ecoli_repMed.gff3 \
+  --plasmid_count 2 \
+  --plasmid_fa_out 01_simref/plasmids.fa \
+  --plasmid_gff3_out 01_simref/plasmids.gff3 \
+  --marker_mode both \
+  --markers_fa data/markers_curated.fa \
+  --markers_per_plasmid 2 \
+  --marker_insert_mode replace")
 ```
 
 
@@ -213,14 +219,14 @@ Population structure (optional):
 
 Example (diploid, quantitative trait):
 
-```bash
-scripts/mac/10_simulate_gwas_cohort.R   --genome_fa inst/extdata/ref_files/human_grch38_chr1.fa   --out_prefix 05_summary/gwas_chr1   --n_samples 200   --ploidy 2   --snp_rate 0.001   --indel_rate 0.0001   --phenotype quantitative   --n_causal 50   --effect_sd 0.6   --seed 7
+```r
+system("scripts/mac/10_simulate_gwas_cohort.R   --genome_fa inst/extdata/ref_files/human_grch38_chr1.fa   --out_prefix 05_summary/gwas_chr1   --n_samples 200   --ploidy 2   --snp_rate 0.001   --indel_rate 0.0001   --phenotype quantitative   --n_causal 50   --effect_sd 0.6   --seed 7")
 ```
 
 Example (haploid, case/control):
 
-```bash
-scripts/mac/10_simulate_gwas_cohort.R   --genome_fa inst/extdata/ref_files/ecoli_k12_mg1655_chr.fa   --out_prefix 05_summary/gwas_ecoli   --n_samples 300   --ploidy 1   --snp_rate 0.002   --indel_rate 0.0002   --phenotype binary   --case_frac 0.5   --n_causal 20   --effect_sd 0.8   --seed 11
+```r
+system("scripts/mac/10_simulate_gwas_cohort.R   --genome_fa inst/extdata/ref_files/ecoli_k12_mg1655_chr.fa   --out_prefix 05_summary/gwas_ecoli   --n_samples 300   --ploidy 1   --snp_rate 0.002   --indel_rate 0.0002   --phenotype binary   --case_frac 0.5   --n_causal 20   --effect_sd 0.8   --seed 11")
 ```
 
 
@@ -231,13 +237,13 @@ Example panel (already created):
 - `inst/extdata/ref_files/random_panel.fa`
 
 Generate a new panel:
-```bash
-scripts/mac/11a_generate_random_haplotype_panel.R   --out_fa inst/extdata/ref_files/random_panel.fa   --n_haps 8 --length 50000 --gc 0.5   --snp_rate 0.002 --indel_rate 0.0002 --indel_maxlen 3   --seed 42
+```r
+system("scripts/mac/11a_generate_random_haplotype_panel.R   --out_fa inst/extdata/ref_files/random_panel.fa   --n_haps 8 --length 50000 --gc 0.5   --snp_rate 0.002 --indel_rate 0.0002 --indel_maxlen 3   --seed 42")
 ```
 
 Simulate breeding (F1 -> self 2 generations -> backcross to P1):
-```bash
-scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/breeding_demo   --parents hap1,hap2   --sequence F1,SELF:2,BC:P1:1   --n_offspring 100   --seed 7
+```r
+system("scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/breeding_demo   --parents hap1,hap2   --sequence F1,SELF:2,BC:P1:1   --n_offspring 100   --seed 7")
 ```
 
 Tokens for `--sequence`:
@@ -258,18 +264,18 @@ RIL / NIL / DH shortcuts:
 
 
 MAGIC example:
-```bash
-scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/magic_demo   --scheme MAGIC   --n_founders 6   --n_offspring 200   --seed 3
+```r
+system("scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/magic_demo   --scheme MAGIC   --n_founders 6   --n_offspring 200   --seed 3")
 ```
 
 NAM example:
-```bash
-scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/nam_demo   --scheme NAM   --founders hap1,hap2,hap3,hap4,hap5   --n_offspring 200   --seed 5
+```r
+system("scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/nam_demo   --scheme NAM   --founders hap1,hap2,hap3,hap4,hap5   --n_offspring 200   --seed 5")
 ```
 
 VCF output from bred lines:
-```bash
-scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/breed_vcf_demo   --sequence F1,SELF:2   --vcf_out 05_summary/breed_vcf_demo.vcf   --seed 9
+```r
+system("scripts/mac/11_simulate_breeding.R   --haplotype_fa inst/extdata/ref_files/random_panel.fa   --out_prefix 05_summary/breed_vcf_demo   --sequence F1,SELF:2   --vcf_out 05_summary/breed_vcf_demo.vcf   --seed 9")
 ```
 
 
@@ -279,10 +285,11 @@ If you want richer mating schemes and population genetics models, use SimuPOP vi
 Example:
 ```bash
 conda activate simitall
-scripts/mac/12_simupop_api.R --config data/simupop_example.json --out_prefix 05_summary/simupop_demo
+Rscript scripts/mac/12_simupop_api.R --config data/simupop_example.json --out_prefix 05_summary/simupop_demo
 ```
 
 Config file: `data/simupop_example.json`
+
 SimuPOP bridge from FASTA:
 - Add an `init` block in JSON to seed SimuPOP from a haplotype panel FASTA
 - `from_fasta`: path to multi‑FASTA panel
@@ -295,8 +302,59 @@ Outputs:
 - `<prefix>.meta.tsv`
 - `<prefix>.vcf` (if `export_vcf: true`)
 
+Advanced: `python_hook`
+- You can inject Python code into the SimuPOP runtime before config is processed.
+- This enables advanced classes such as `PyParentsChooser`, `ControlledOffspringGenerator`, and `PedigreeMating`.
+
+Example (PyParentsChooser):
+```json
+{
+  "python_hook": "def my_parent_gen(pop, subPop):
+    while True:
+        yield pop.individual(0), pop.individual(1)
+",
+  "mating": {
+    "scheme": "HomoMating",
+    "chooser": "PyParentsChooser",
+    "generator_name": "my_parent_gen",
+    "generator": "OffspringGenerator",
+    "numOffspring": 2
+  }
+}
+```
+
+Example (ControlledOffspringGenerator):
+```json
+{
+  "python_hook": "def freq_traj(gen):
+    return [0.2]
+",
+  "mating": {
+    "scheme": "HomoMating",
+    "chooser": "RandomParentsChooser",
+    "generator": "ControlledOffspringGenerator",
+    "freqFunc_name": "freq_traj",
+    "loci": [0],
+    "alleles": [1],
+    "numOffspring": 2
+  }
+}
+```
+
+Example (PedigreeMating):
+```json
+{
+  "python_hook": "import simuPOP as sim
+ped = sim.loadPedigree('my.ped')
+",
+  "mating": {
+    "scheme": "PedigreeMating",
+    "pedigree_name": "ped"
+  }
+}
+```
+
 ## Parameter explanations
-### 01_make_tandem_repeats.R (preferred) / 01_make_tandem_repeats.py
 - `--mode` `tandem|motif|both` (default: `tandem`)
 - `--n_events` tandem: number of duplication events
 - `--seg_len` tandem: duplicated segment length (bp)
@@ -344,7 +402,6 @@ Common args:
 - `--plasmid_count`, `--plasmid_length`, `--plasmid_gc`, `--plasmid_fa_out`, `--plasmid_gff3_out`
 - `--marker_mode`, `--markers_fa`, `--markers_per_plasmid`, `--marker_insert_mode`
 
-### 02_sim_illumina_art.sh
 Arguments:
 - `<ref.fa>` reference FASTA
 - `<outprefix>` output prefix
@@ -353,7 +410,6 @@ Arguments:
 - `[ins]` mean insert size, default 350
 - `[sd]` insert SD, default 50
 
-### 03_sim_pacbio.sh
 Arguments:
 - `<ref.fa>` reference FASTA
 - `<outdir>` output directory
@@ -365,15 +421,12 @@ Notes:
 - Supports older `pbsim` (no `--data-type`) and uses bundled model files.
 - If `pbsim` outputs `.bam`, the script converts to FASTQ using `samtools`.
 
-### 04_run_grid_both_pacbio.sh
 Runs a coverage grid for Illumina + PacBio CLR + PacBio HiFi.
 Edit the arrays inside the script to change coverage grids.
 
-### 05_run_unicycler_grid_both.sh
 Runs Unicycler hybrid assemblies for each Illumina × PacBio pair.
 The Mac smoke test uses conservative settings for speed.
 
-### 06_run_quast_both.sh
 Runs QUAST against the known simulated reference.
 On macOS, this script copies QUAST to a temp path if the environment path contains spaces.
 
@@ -395,13 +448,13 @@ If you use these tools in a publication, please cite:
 
 
 Mermaid crossing graph (optional):
-```bash
-scripts/mac/11_simulate_breeding.R \
+```r
+system("scripts/mac/11_simulate_breeding.R \
   --haplotype_fa inst/extdata/ref_files/random_panel.fa \
   --out_prefix 05_summary/graph_demo \
   --sequence F1,SELF:2 \
   --graph_out 05_summary/graph_demo.mmd \
-  --seed 10
+  --seed 10")
 ```
 
 Graph rendering (optional):
@@ -427,4 +480,18 @@ Breeding realism options:
 Breeding QC reports:
 - `--qc_out` writes per-line heterozygosity + breakpoint counts
 - `--qc_ld_bins`, `--qc_ld_maxdist` write LD decay bins to `<qc_out>.ld.tsv`
+
+
+R wrappers (optional):
+- `scripts/mac/02_sim_illumina_art.R` wraps ART Illumina simulation
+- `scripts/mac/03_sim_pacbio.R` wraps PBSIM/PBSIM3 simulation
+
+Example in R:
+```r
+source("scripts/mac/02_sim_illumina_art.R")
+source("scripts/mac/03_sim_pacbio.R")
+
+sim_illumina_art("01_simref/ecoli_repMed.fa", "02_reads/ecoli/ill30_", 30)
+sim_pacbio("01_simref/ecoli_repMed.fa", "02_reads/ecoli/pb20", 20, "HIFI")
+```
 

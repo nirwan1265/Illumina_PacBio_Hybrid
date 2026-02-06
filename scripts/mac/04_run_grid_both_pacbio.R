@@ -10,5 +10,5 @@ get_script_path <- function() {
 
 this_file <- get_script_path()
 script_dir <- dirname(this_file)
-source(normalizePath(file.path(script_dir, '..', '..', 'inst', 'cli', 'cli_11_simulate_breeding.R')))
-main_11_simulate_breeding(commandArgs(trailingOnly = TRUE))
+source(normalizePath(file.path(script_dir, '..', '..', 'inst', 'cli', 'cli_04_run_grid_both_pacbio.R')))
+main_04_run_grid_both_pacbio(commandArgs(trailingOnly = TRUE))

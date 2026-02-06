@@ -1,0 +1,12 @@
+Package: IlluminaPacBioHybrid
+Type: Package
+Title: Hybrid Long+Short Read Simulation, Assembly, and Evaluation
+Version: 0.0.1
+Authors@R: c(
+    person("Nirwan", "Tandukar", email = "nirwan@example.com", role = c("aut", "cre"))
+    )
+Description: R-first pipeline for bacterial and synthetic genome simulation, read simulation, hybrid assembly, evaluation, and population/breeding simulations.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2

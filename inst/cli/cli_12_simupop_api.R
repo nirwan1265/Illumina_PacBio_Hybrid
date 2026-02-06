@@ -1,9 +1,8 @@
-#!/usr/bin/env Rscript
+main_12_simupop_api <- function(args = commandArgs(trailingOnly = TRUE)) {
 
 # R API wrapper around SimuPOP via reticulate (inline Python)
 
-args <- commandArgs(trailingOnly = TRUE)
-
+args <- args
 usage <- function() {
   cat("Usage: 12_simupop_api.R --config <path> --out_prefix <path>\n")
   quit(status = 1)
@@ -29,6 +28,11 @@ suppressPackageStartupMessages({
 
 cfg <- fromJSON(cfg_path)
 
+python_hook <- cfg$python_hook
+if (!is.null(python_hook) && nzchar(python_hook)) {
+  py_run_string(python_hook)
+}
+
 if ("simitall" %in% conda_list()$name) {
   use_condaenv("simitall", required = TRUE)
 }
@@ -38,24 +42,118 @@ import random
 import simuPOP as sim
 
 
+def _make_parent_chooser(cfg):
+    chooser = (cfg.get('chooser') or 'RandomParentsChooser').strip()
+    mapping = {
+        'SequentialParentChooser': sim.SequentialParentChooser,
+        'SequentialParentsChooser': sim.SequentialParentsChooser,
+        'RandomParentChooser': sim.RandomParentChooser,
+        'RandomParentsChooser': sim.RandomParentsChooser,
+        'PolyParentsChooser': sim.PolyParentsChooser,
+        'CombinedParentsChooser': sim.CombinedParentsChooser,
+        'PyParentsChooser': sim.PyParentsChooser,
+    }
+    if chooser not in mapping:
+        raise ValueError(f'Unknown parent chooser: {chooser}')
+    if chooser == 'PyParentsChooser':
+        gen_name = cfg.get('generator_name')
+        if not gen_name or gen_name not in globals():
+            raise ValueError('PyParentsChooser requires generator_name from python_hook globals')
+        return mapping[chooser](globals()[gen_name])
+    if chooser == 'CombinedParentsChooser':
+        fc = cfg.get('fatherChooser') or {}
+        mc = cfg.get('motherChooser') or {}
+        father = _make_parent_chooser(fc)
+        mother = _make_parent_chooser(mc)
+        return mapping[chooser](father, mother, allowSelfing=cfg.get('allowSelfing', True))
+    kwargs = {}
+    for k in ['replacement', 'selectionField', 'sexChoice', 'polySex', 'polyNum']:
+        if k in cfg and cfg[k] is not None:
+            kwargs[k] = cfg[k]
+    return mapping[chooser](**kwargs) if kwargs else mapping[chooser]()
+
+
+def _make_offspring_generator(cfg):
+    gen = (cfg.get('generator') or 'OffspringGenerator').strip()
+    if gen == 'ControlledOffspringGenerator':
+        freq_name = cfg.get('freqFunc_name')
+        if not freq_name or freq_name not in globals():
+            raise ValueError('ControlledOffspringGenerator requires freqFunc_name from python_hook globals')
+        loci = cfg.get('loci', [])
+        alleles = cfg.get('alleles', [])
+        return sim.ControlledOffspringGenerator(loci=loci, alleles=alleles, freqFunc=globals()[freq_name])
+    if gen != 'OffspringGenerator':
+        raise ValueError(f'Unknown offspring generator: {gen}')
+    num = cfg.get('numOffspring', 1)
+    sex_mode = cfg.get('sexMode')
+    kwargs = {'numOffspring': num}
+    if sex_mode is not None:
+        kwargs['sexMode'] = sex_mode
+    return sim.OffspringGenerator(ops=[sim.MendelianGenoTransmitter()], **kwargs)
+
+
 def _make_mating_scheme(cfg):
     scheme = (cfg.get('scheme') or 'RandomMating').strip()
-    size = cfg.get('offspring')
+    size = cfg.get('offspring') if cfg.get('offspring') is not None else cfg.get('subPopSize')
+
+    # Directly supported concrete schemes
     mapping = {
-        'RandomMating': sim.RandomMating,
+        'MatingScheme': sim.MatingScheme,
+        'CloneMating': sim.CloneMating,
         'RandomSelection': sim.RandomSelection,
+        'RandomMating': sim.RandomMating,
         'MonogamousMating': sim.MonogamousMating,
         'PolygamousMating': sim.PolygamousMating,
+        'HaplodiploidMating': sim.HaplodiploidMating,
         'SelfMating': sim.SelfMating,
         'HermaphroditicMating': sim.HermaphroditicMating,
         'ControlledRandomMating': sim.ControlledRandomMating,
-        'CloneMating': sim.CloneMating,
-        'HaplodiploidMating': sim.HaplodiploidMating,
     }
-    if scheme not in mapping:
-        raise ValueError(f'Unknown mating scheme: {scheme}')
-    return mapping[scheme](subPopSize=size) if size is not None else mapping[scheme]()
 
+    if scheme in mapping:
+        kwargs = {}
+        if size is not None:
+            kwargs['subPopSize'] = size
+        for k in ['numOffspring', 'sexMode', 'selectionField', 'polySex', 'polyNum', 'replacement', 'allowSelfing', 'ops']:
+            if k in cfg and cfg[k] is not None:
+                kwargs[k] = cfg[k]
+        return mapping[scheme](**kwargs) if kwargs else mapping[scheme]()
+
+    if scheme == 'HomoMating':
+        chooser = _make_parent_chooser(cfg)
+        generator = _make_offspring_generator(cfg)
+        return sim.HomoMating(chooser, generator,
+                              subPopSize=size,
+                              subPops=cfg.get('subPops', sim.ALL_AVAIL),
+                              weight=cfg.get('weight', 0))
+
+    if scheme == 'HeteroMating':
+        schemes_cfg = cfg.get('matingSchemes') or []
+        if not schemes_cfg:
+            raise ValueError('HeteroMating requires matingSchemes list')
+        schemes = [_make_mating_scheme(sc) for sc in schemes_cfg]
+        return sim.HeteroMating(schemes,
+                                subPopSize=size,
+                                shuffleOffspring=cfg.get('shuffleOffspring', True),
+                                weightBy=cfg.get('weightBy', sim.ANY_SEX))
+
+    if scheme == 'ConditionalMating':
+        cond = cfg.get('cond', True)
+        if_cfg = cfg.get('ifMatingScheme')
+        else_cfg = cfg.get('elseMatingScheme')
+        if if_cfg is None or else_cfg is None:
+            raise ValueError('ConditionalMating requires ifMatingScheme and elseMatingScheme')
+        return sim.ConditionalMating(cond, _make_mating_scheme(if_cfg), _make_mating_scheme(else_cfg))
+
+    if scheme == 'PedigreeMating':
+        ped_name = cfg.get('pedigree_name')
+        ops_name = cfg.get('ops_name')
+        if not ped_name or ped_name not in globals():
+            raise ValueError('PedigreeMating requires pedigree_name from python_hook globals')
+        ops = globals()[ops_name] if ops_name and ops_name in globals() else []
+        return sim.PedigreeMating(globals()[ped_name], ops)
+
+    raise ValueError(f'Unknown mating scheme: {scheme}')
 
 def _read_fasta_multi(path):
     ids, seqs = [], []
@@ -230,3 +328,4 @@ res <- py$run_simupop(cfg, out_prefix)
 cat("Wrote:\n")
 cat("  ", res$genotypes, "\n", sep = "")
 cat("  ", res$meta, "\n", sep = "")
+}

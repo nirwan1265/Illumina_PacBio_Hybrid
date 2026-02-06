@@ -10,5 +10,5 @@ get_script_path <- function() {
 
 this_file <- get_script_path()
 script_dir <- dirname(this_file)
-source(normalizePath(file.path(script_dir, '..', '..', 'inst', 'cli', 'cli_11_simulate_breeding.R')))
-main_11_simulate_breeding(commandArgs(trailingOnly = TRUE))
+source(normalizePath(file.path(script_dir, '..', '..', 'inst', 'cli', 'cli_06_run_quast_both.R')))
+main_06_run_quast_both(commandArgs(trailingOnly = TRUE))
