@@ -2,26 +2,18 @@
 
 ## Introduction
 
-This project provides a comprehensive toolkit for **genomic data simulation**, encompassing everything from bacterial genome benchmarking to complex plant breeding schemes. Whether you need to simulate Illumina short reads, PacBio long reads, cross-species introgression, or complete breeding populations with genotype likelihoods, this toolkit has you covered.
+This project provides a comprehensive toolkit for **genomic and transcriptomic data simulation**, encompassing everything from bacterial genome benchmarking to complex plant breeding schemes. Whether you need to simulate Illumina short reads, PacBio long reads, cross-species introgression, GWAS cohorts, or complete breeding populations with genotype likelihoods, this toolkit has you covered.
 
-### What You Can Simulate
+### Simulation Capabilities
 
 | Category | Capabilities |
 |----------|-------------|
-| **Genome Assembly** | Hybrid assembly benchmarking with Illumina + PacBio (CLR/HiFi) |
-| **Read Simulation** | Illumina PE (ART), PacBio CLR/HiFi (PBSIM), coverage grids |
+| **Genome Simulation** | Repeat-stress genomes, random genomes, ploidy simulation |
+| **DNA-seq Simulation** | Illumina PE (ART), PacBio CLR/HiFi (PBSIM), coverage grids |
 | **GWAS Cohorts** | Population structure, LD blocks, causal variants, phenotypes |
 | **Breeding Populations** | F1, BC, RIL, NIL, DH, MAGIC, NAM schemes |
 | **Cross-Species Breeding** | Align divergent haplotypes, simulate controlled introgressions |
-| **Genotype Likelihoods** | Full pipeline: FASTA → reads → BAM → VCF with PL/GL values |
-
-### Key Features
-
-- **Controlled Introgression Simulation**: Generate BC2S3-like populations with known donor segments (~12.5% introgression)
-- **Cross-Species Alignment**: Align chromosomes from different species (e.g., B73 maize × teosinte) for interspecific breeding simulation
-- **Complete GL Pipeline**: From simulated diploid FASTAs through Illumina read simulation to bcftools variant calling
-- **Flexible Breeding Schemes**: F1, selfing, backcrossing, doubled haploids, MAGIC, NAM with Mermaid graph outputs
-- **Multi-Coverage Grids**: Simulate reads at multiple coverage levels (10x, 8x, 4x, 1x, 0.5x) for benchmarking
+| **RNA-seq Simulation** | Bulk RNA-seq, scRNA-seq (recommended external tools) |
 
 ---
 
@@ -51,58 +43,153 @@ Use a path **without spaces** for reliable SPAdes/QUAST runs:
 
 ---
 
-## Simulation Pipelines
+## 1. Genome Simulation
 
-### 1. Hybrid Assembly Benchmarking
+Simulate reference genomes with controlled complexity: tandem repeats, motif repeats, random sequences, and polyploid genomes.
 
-Benchmark hybrid assembly performance across Illumina short reads and PacBio long reads (CLR and HiFi).
+### 1.1 Create Repeat-Stress Genomes
 
-**Pipeline:**
-```
-Reference → Repeat Stress → Read Simulation → Hybrid Assembly → QUAST Evaluation
-```
-
-**Scripts (run in order):**
 ```bash
-# 1. Create repeat-stress reference
 Rscript scripts/mac/01_make_tandem_repeats.R \
   --in_fa 00_ref/ecoli.fa \
   --out_fa 01_simref/ecoli_repMed.fa \
-  --n_events 15 --seg_len 1000 --copies 5
+  --mode tandem \
+  --n_events 15 \
+  --seg_len 1000 \
+  --copies 5
+```
 
-# 2. Generate annotations (optional)
+#### Parameters: `01_make_tandem_repeats.R`
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--in_fa` | Input reference FASTA | required |
+| `--out_fa` | Output FASTA with repeats | required |
+| `--mode` | `tandem`, `motif`, or `both` | `tandem` |
+| `--n_events` | Number of duplication events | 10 |
+| `--seg_len` | Duplicated segment length (bp) | 1000 |
+| `--copies` | Total copies per tandem array | 3 |
+| `--motif` | Repeat motif string (e.g., `ATTA`) | - |
+| `--motif_repeat` | Repeats per motif block | 10 |
+| `--ploidy` | Number of genome copies | 2 |
+| `--ploidy_mode` | `identical` or `diverged` | `identical` |
+| `--ploidy_snp_rate` | SNP rate for diverged copies | 0.001 |
+| `--random_genome` | Generate random genome instead | false |
+| `--random_length` | Random genome length (bp) | 1000000 |
+| `--random_gc` | Random genome GC content | 0.5 |
+
+### 1.2 Generate Annotations
+
+```bash
 Rscript scripts/mac/01b_generate_annotations.R \
   --genome_fa 01_simref/ecoli_repMed.fa \
   --out_gff3 01_simref/ecoli_repMed.gff3
+```
 
-# 3. Simulate reads (Illumina + PacBio grids)
-Rscript scripts/mac/04_run_grid_both_pacbio.R
+### 1.3 Download Reference Files
 
-# 4. Run hybrid assembly
-Rscript scripts/mac/05_run_unicycler_grid_both.R
-
-# 5. Evaluate with QUAST
-Rscript scripts/mac/06_run_quast_both.R
-
-# 6. Summarize results
-Rscript scripts/mac/07_summarize_quast.R \
-  04_eval/ecoli_repMed/CLR \
-  05_summary/ecoli_repMed.CLR.quast_summary.csv
+```bash
+Rscript scripts/mac/01d_fetch_ref_files.R \
+  --species human \
+  --chromosome chr1 \
+  --out_dir inst/extdata/ref_files
 ```
 
 ---
 
-### 2. GWAS Cohort Simulation
+## 2. DNA-seq Simulation (Genomics)
 
-Simulate a GWAS-style cohort with population structure, LD blocks, and phenotypes.
+Simulate sequencing reads from reference genomes using industry-standard simulators.
 
-**Outputs:**
-- VCF with genotypes
-- Genotype matrix (`.geno.tsv`)
-- Phenotype table (`.pheno.tsv`)
-- Recombination map (optional)
+### 2.1 Illumina Short Reads (ART)
 
-**Example (diploid, quantitative trait):**
+```bash
+Rscript scripts/mac/02_sim_illumina_art.R \
+  01_simref/ecoli_repMed.fa \
+  02_reads/illumina/ecoli_cov30 \
+  30 \
+  150 \
+  350 \
+  50
+```
+
+#### Parameters: `02_sim_illumina_art.R`
+
+| Position | Parameter | Description | Default |
+|----------|-----------|-------------|---------|
+| 1 | `ref_fa` | Reference FASTA | required |
+| 2 | `outprefix` | Output prefix | required |
+| 3 | `cov` | Coverage depth | required |
+| 4 | `readlen` | Read length (bp) | 150 |
+| 5 | `ins` | Insert size (bp) | 350 |
+| 6 | `sd` | Insert size SD | 50 |
+
+**Outputs:** `<prefix>1.fq.gz`, `<prefix>2.fq.gz`
+
+### 2.2 PacBio Long Reads (PBSIM)
+
+```bash
+Rscript scripts/mac/03_sim_pacbio.R \
+  01_simref/ecoli_repMed.fa \
+  02_reads/pacbio_hifi \
+  20 \
+  HIFI \
+  42
+```
+
+#### Parameters: `03_sim_pacbio.R`
+
+| Position | Parameter | Description | Default |
+|----------|-----------|-------------|---------|
+| 1 | `ref_fa` | Reference FASTA | required |
+| 2 | `outdir` | Output directory | required |
+| 3 | `cov` | Coverage depth | required |
+| 4 | `type` | `HIFI` or `CLR` | required |
+| 5 | `seed` | Random seed | 1 |
+
+**Outputs:** `<outdir>/pb{HIFI,CLR}_cov<cov>_*.fastq.gz`
+
+### 2.3 Coverage Grid Simulation
+
+Run systematic coverage combinations for benchmarking:
+
+```bash
+Rscript scripts/mac/04_run_grid_both_pacbio.R
+```
+
+**Default Coverage Levels:**
+- Illumina: 10x, 20x, 30x, 40x, 60x, 80x
+- PacBio: 5x, 10x, 15x, 20x, 30x, 40x
+
+### 2.4 Hybrid Assembly Benchmarking
+
+Complete pipeline from reference to assembly evaluation:
+
+```bash
+# 1. Create repeat-stress reference
+Rscript scripts/mac/01_make_tandem_repeats.R --in_fa 00_ref/ecoli.fa --out_fa 01_simref/ecoli_repMed.fa
+
+# 2. Simulate reads (coverage grid)
+Rscript scripts/mac/04_run_grid_both_pacbio.R
+
+# 3. Run Unicycler hybrid assembly
+Rscript scripts/mac/05_run_unicycler_grid_both.R
+
+# 4. Evaluate with QUAST
+Rscript scripts/mac/06_run_quast_both.R
+
+# 5. Summarize results
+Rscript scripts/mac/07_summarize_quast.R 04_eval/ecoli_repMed/CLR 05_summary/ecoli_repMed.CLR.quast_summary.csv
+```
+
+---
+
+## 3. GWAS Cohort Simulation
+
+Simulate GWAS-style cohorts with population structure, LD blocks, and phenotypes.
+
+### 3.1 Basic GWAS Cohort
+
 ```bash
 Rscript scripts/mac/10_simulate_gwas_cohort.R \
   --genome_fa inst/extdata/ref_files/human_grch38_chr1.fa \
@@ -119,32 +206,121 @@ Rscript scripts/mac/10_simulate_gwas_cohort.R \
   --ld_block_size 50000
 ```
 
-**Options:**
+#### Parameters: `10_simulate_gwas_cohort.R`
+
+**Required:**
+
 | Parameter | Description |
 |-----------|-------------|
-| `--n_pops`, `--pop_sizes`, `--fst` | Population structure |
-| `--ld_block_size`, `--ld_haplotypes` | LD blocks and strength |
-| `--recomb_map_in/out` | Recombination map support |
-| `--phenotype` | `quantitative` or `binary` |
-| `--n_causal`, `--effect_sd` | Causal variants and effect sizes |
+| `--genome_fa` | Reference FASTA (single-contig preferred) |
+| `--out_prefix` | Output prefix (.vcf, .geno.tsv, .pheno.tsv) |
+
+**Cohort:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--n_samples` | Number of samples | 100 |
+| `--ploidy` | Ploidy level (1=haploid, 2=diploid) | 2 |
+
+**Variants:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--snp_rate` | Per-bp SNP rate | 0.001 |
+| `--indel_rate` | Per-bp indel rate | 0.0001 |
+| `--indel_maxlen` | Maximum indel length | 3 |
+| `--af_beta1` | Allele-freq Beta alpha | 0.8 |
+| `--af_beta2` | Allele-freq Beta beta | 0.8 |
+
+**Population Structure:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--n_pops` | Number of populations | 1 |
+| `--pop_sizes` | Population sizes (CSV or fractions) | equal |
+| `--fst` | Fst divergence between populations | 0.0 |
+| `--pop_effect_shift` | Phenotype shift between populations | 0.0 |
+
+**LD Structure:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--ld_block_size` | LD block size (bp, 0=no LD) | 0 |
+| `--ld_haplotypes` | Haplotypes per LD block | 6 |
+
+**Recombination:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--recomb_map_in` | Input recombination map TSV | - |
+| `--recomb_map_out` | Output recombination map TSV | - |
+| `--recomb_rate_mean` | Mean cM/Mb | 1.0 |
+| `--recomb_rate_sd` | SD of recombination rate | 0.3 |
+| `--recomb_hotspots` | Number of hotspots | 3 |
+| `--recomb_hotspot_mult` | Hotspot multiplier | 5.0 |
+
+**Outputs:**
+- `<prefix>.vcf` - VCF with genotypes
+- `<prefix>.geno.tsv` - Genotype matrix
+- `<prefix>.pheno.tsv` - Phenotype table
+
+### 3.2 Phenotype Simulation
+
+Simulate quantitative or binary traits with causal variants.
+
+#### Phenotype Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--phenotype` | `none`, `binary`, or `quantitative` | quantitative |
+| `--n_causal` | Number of causal variants | 20 |
+| `--effect_sd` | Effect size SD | 0.5 |
+| `--case_frac` | Target case fraction (binary only) | 0.5 |
+
+**Quantitative Trait:**
+```bash
+Rscript scripts/mac/10_simulate_gwas_cohort.R \
+  --genome_fa ref.fa \
+  --out_prefix gwas_quant \
+  --phenotype quantitative \
+  --n_causal 100 \
+  --effect_sd 0.3
+```
+
+**Binary Trait (Case-Control):**
+```bash
+Rscript scripts/mac/10_simulate_gwas_cohort.R \
+  --genome_fa ref.fa \
+  --out_prefix gwas_binary \
+  --phenotype binary \
+  --n_causal 50 \
+  --effect_sd 0.8 \
+  --case_frac 0.3
+```
 
 ---
 
-### 3. Breeding Population Simulation
+## 4. Breeding Population Simulation
 
 Simulate F1, selfing, backcross, and advanced breeding schemes from haplotype panels.
 
-**Supported Schemes:**
-- **F1**: First filial generation from two parents
-- **SELF**: Self-fertilization (SSD or SIB mating)
-- **BC**: Backcross to P1 or P2
-- **RIL**: Recombinant Inbred Lines
-- **NIL**: Near-Isogenic Lines
-- **DH**: Doubled Haploids
-- **MAGIC**: Multi-parent Advanced Generation Inter-Cross
-- **NAM**: Nested Association Mapping
+### 4.1 Supported Breeding Schemes
 
-**Example (F1 → Self 2 generations → Backcross):**
+| Scheme | Description |
+|--------|-------------|
+| **F1** | First filial generation from two parents |
+| **SELF** | Self-fertilization (SSD) |
+| **SIB** | Sib-mating |
+| **BC** | Backcross to P1 or P2 |
+| **RIL** | Recombinant Inbred Lines |
+| **NIL** | Near-Isogenic Lines |
+| **DH** | Doubled Haploids |
+| **MAGIC** | Multi-parent Advanced Generation Inter-Cross |
+| **NAM** | Nested Association Mapping |
+
+### 4.2 Basic Breeding Simulation
+
+**F1 → Self 2 generations → Backcross:**
 ```bash
 Rscript scripts/mac/11_simulate_breeding.R \
   --haplotype_fa inst/extdata/ref_files/random_panel.fa \
@@ -155,7 +331,87 @@ Rscript scripts/mac/11_simulate_breeding.R \
   --seed 7
 ```
 
-**MAGIC Example:**
+#### Parameters: `11_simulate_breeding.R`
+
+**Required:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `--haplotype_fa` | Multi-FASTA panel (same length haplotypes) |
+| `--out_prefix` | Output prefix (.fa, .meta.tsv) |
+
+**Parents/Population:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--parents` | Two haplotype IDs or indices (CSV) | random |
+| `--n_offspring` | Number of offspring | 100 |
+| `--founders` | Founder hap IDs for MAGIC/NAM | - |
+| `--n_founders` | Number of founders | 4 |
+
+**Breeding Sequence:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--sequence` | Breeding sequence (e.g., `F1,SELF:3,BC:P1:2`) | F1,SELF:1 |
+| `--scheme` | High-level scheme: `F2`, `MAGIC`, `NAM`, `RIL`, `NIL`, `DH` | - |
+| `--self_generations` | Selfing generations for RIL/NIL | 6 |
+| `--backcross_generations` | BC generations for NIL | 3 |
+| `--ril_mating` | `SSD` or `SIB` | SSD |
+
+**Selection:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--background_selection` | Select NILs by minimal donor background | false |
+| `--selection_pool` | Candidates per generation | 50 |
+| `--marker_step` | Marker spacing for selection (bp) | 1000 |
+| `--introgression_target_len` | Target donor tract length (bp) | - |
+| `--selection_loci` | Selected loci positions (CSV) | - |
+| `--selection_model` | `add`, `dom`, or `rec` | add |
+| `--selection_strength` | Fitness penalty per risk allele | 0 |
+| `--distortion_rate` | Segregation distortion rate | 0 |
+
+**Fixed Locus:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--fix_locus` | Force locus from donor/recipient (start:end) | - |
+| `--fix_allele` | `donor`, `recipient`, or haplotype ID | - |
+
+**Recombination:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--recomb_map_in` | Recombination map TSV (pos_bp, cM) | - |
+| `--recomb_rate_mean` | Mean cM/Mb | 1.0 |
+| `--recomb_rate_sd` | SD of recombination rate | 0.3 |
+| `--recomb_hotspots` | Number of hotspots | 3 |
+| `--recomb_hotspot_mult` | Hotspot multiplier | 5.0 |
+| `--interference_shape` | Gamma shape for crossover interference | 1.0 |
+
+**Genotype Errors:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--genotype_error` | Per-genotype error rate | 0 |
+| `--missing_rate` | Per-genotype missingness | 0 |
+| `--sv_rate` | Structural variant rate | 0 |
+| `--sv_maxlen` | Max SV length | 1000 |
+
+**Outputs:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `--vcf_out` | Output VCF path |
+| `--graph_out` | Mermaid crossing graph path |
+| `--graph_format` | `mmd`, `svg`, or `png` |
+| `--qc_out` | QC report TSV |
+| `--ascertainment` | `founders` or `all` |
+
+### 4.3 Advanced Schemes
+
+**MAGIC:**
 ```bash
 Rscript scripts/mac/11_simulate_breeding.R \
   --haplotype_fa inst/extdata/ref_files/random_panel.fa \
@@ -165,7 +421,7 @@ Rscript scripts/mac/11_simulate_breeding.R \
   --n_offspring 200
 ```
 
-**NAM Example:**
+**NAM:**
 ```bash
 Rscript scripts/mac/11_simulate_breeding.R \
   --haplotype_fa inst/extdata/ref_files/random_panel.fa \
@@ -175,23 +431,24 @@ Rscript scripts/mac/11_simulate_breeding.R \
   --n_offspring 200
 ```
 
-**Outputs:**
-- `<prefix>.fa` - Haplotype sequences (`sampleX_hap1`, `sampleX_hap2`)
-- `<prefix>.meta.tsv` - Sample metadata (generation, scheme)
-- `<prefix>.vcf` - VCF with genotypes
-- `<prefix>.mmd` - Mermaid crossing diagram (optional)
+**RIL with Background Selection:**
+```bash
+Rscript scripts/mac/11_simulate_breeding.R \
+  --haplotype_fa panel.fa \
+  --out_prefix 05_summary/ril_selected \
+  --scheme RIL \
+  --background_selection \
+  --selection_pool 100 \
+  --introgression_target_len 500000
+```
 
----
+### 4.4 Cross-Species Introgression Simulation
 
-### 4. Cross-Species Introgression Simulation
+Simulate BC2S3-like populations with controlled introgressions from divergent species.
 
-The most advanced feature: simulate BC2S3-like populations with controlled introgressions from a divergent donor species.
-
-**Use Case:** Simulate introgression breeding from wild relatives (e.g., B73 maize × teosinte)
+**Use Case:** Introgression breeding from wild relatives (e.g., B73 maize × teosinte)
 
 #### Step 1: Align Divergent Haplotypes
-
-Align chromosomes from two species to find syntenic regions:
 
 ```bash
 ./scripts/mac/20_prepare_aligned_haplotypes.sh \
@@ -203,14 +460,7 @@ Align chromosomes from two species to find syntenic regions:
   --target-len 100000000
 ```
 
-**Outputs:**
-- Syntenic blocks (PAF format)
-- Aligned haplotype FASTAs of equal length
-- Coordinate mapping files
-
 #### Step 2: Simulate Controlled Introgressions
-
-Generate a BC2S3-like population with known introgression locations:
 
 ```bash
 Rscript scripts/mac/22_simulate_controlled_introgressions.R \
@@ -221,37 +471,32 @@ Rscript scripts/mac/22_simulate_controlled_introgressions.R \
   --seed 42
 ```
 
-**Population Composition:**
-- 50 **mixed samples**: Contains REF, HET, and ALT genotypes
-- 25 **ref_alt samples**: Inbred lines (homozygous only)
-- 25 **ref_het samples**: Heterozygous carriers
+**Parameters: `22_simulate_controlled_introgressions.R`**
 
-**Outputs:**
-- `bc2s3_controlled.vcf.gz` - Multi-sample VCF (1M SNPs × 100 samples)
-- `bc2s3_controlled.introgressions.tsv` - Truth file with exact introgression locations
-- `bc2s3_controlled.sample_summary.tsv` - Per-sample statistics
-- `bc2s3_controlled.introgression_regions.bed` - BED file for visualization
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--genome_size` | Simulated genome size (bp) | 100000000 |
+| `--n_samples` | Number of samples | 100 |
+| `--snp_density` | SNPs per bp | 0.01 |
+| `--frac_mixed` | Fraction of mixed samples | 0.5 |
+| `--frac_ref_alt` | Fraction of ref_alt samples | 0.25 |
+| `--frac_ref_het` | Fraction of ref_het samples | 0.25 |
+| `--min_introgression_len` | Minimum introgression length | 100000 |
+| `--max_introgression_len` | Maximum introgression length | 5000000 |
+| `--donor_fraction` | Target donor genome fraction | 0.125 |
+
+**Population Composition:**
+- 50% **mixed samples**: Contains REF, HET, and ALT genotypes
+- 25% **ref_alt samples**: Inbred lines (homozygous only)
+- 25% **ref_het samples**: Heterozygous carriers
 
 #### Step 3: Generate Sample FASTAs
-
-Convert VCF to diploid FASTA files (one per sample with both haplotypes):
 
 ```bash
 ./scripts/mac/23e_gen_all_fastas.sh
 ```
 
-This generates:
-- `05_summary/bc2s3_fastas/reference.fa` - Reference genome (100 Mb)
-- `05_summary/bc2s3_fastas/sample1.fa` through `sample100.fa` - Diploid FASTAs (~200 MB each)
-
-**Technical Details:**
-- Uses `bcftools consensus` to apply variants to reference
-- Generates `>sampleX_hap1` and `>sampleX_hap2` sequences per sample
-- Total output: ~19 GB for 100 samples
-
 #### Step 4: Simulate Reads and Call Genotype Likelihoods
-
-Complete pipeline from FASTA to variant calls with GL/PL values:
 
 ```bash
 ./scripts/mac/25_simulate_reads_call_gl.sh \
@@ -261,35 +506,136 @@ Complete pipeline from FASTA to variant calls with GL/PL values:
   --threads 4
 ```
 
-**Pipeline Steps:**
-1. Extract haplotypes from diploid FASTA (`seqkit grep`)
-2. Simulate Illumina PE reads per haplotype at half coverage (`art_illumina`)
-3. Combine reads and align to reference (`bwa mem`)
-4. Call variants with genotype likelihoods (`bcftools mpileup + call`)
+**Parameters: `25_simulate_reads_call_gl.sh`**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--fasta-dir` | Directory with sample FASTAs | 05_summary/bc2s3_fastas |
+| `--out-dir` | Output directory | 05_summary/bc2s3_reads |
+| `--coverages` | Coverage levels (CSV) | 10,8,4,1,0.5 |
+| `--threads` | Number of threads | 4 |
+| `--samples` | Specific samples to process | all |
 
 **Outputs:**
-- `bc2s3_reads/bams/sampleX_covY.bam` - Aligned reads
+- `bc2s3_controlled.vcf.gz` - Multi-sample VCF
+- `bc2s3_controlled.introgressions.tsv` - Truth file with exact introgression locations
+- `bc2s3_controlled.sample_summary.tsv` - Per-sample statistics
 - `bc2s3_reads/vcf/sampleX_covY.vcf.gz` - VCF with PL values
 
-**Example Output (500 jobs = 100 samples × 5 coverages):**
-```
-[1/500] sample1 @ 10x
-  -> 05_summary/bc2s3_reads/vcf/sample1_cov10.vcf.gz
-[2/500] sample1 @ 8x
-  -> 05_summary/bc2s3_reads/vcf/sample1_cov8.vcf.gz
-...
+---
+
+## 5. RNA-seq Simulation (Transcriptomics)
+
+For RNA-seq simulation, we recommend using established external tools that integrate well with this pipeline.
+
+### 5.1 Bulk RNA-seq Simulation
+
+#### Recommended Tools
+
+| Tool | Description | Installation |
+|------|-------------|--------------|
+| **Polyester** | R/Bioconductor RNA-seq simulator | `BiocManager::install("polyester")` |
+| **RSEM** | RNA-seq simulator with RSEM models | `conda install -c bioconda rsem` |
+| **Flux Simulator** | Full transcriptome simulation | [download](http://sammeth.net/confluence/display/SIM/Home) |
+
+#### Polyester Example
+
+```r
+# Install
+BiocManager::install("polyester")
+
+library(polyester)
+
+# Simulate from reference transcriptome
+simulate_experiment(
+  fasta = "transcriptome.fa",
+  outdir = "simulated_reads",
+  num_reps = c(3, 3),  # 3 reps per condition
+  reads_per_transcript = 300,
+  fold_changes = fold_changes_matrix,
+  paired = TRUE,
+  readlen = 100
+)
 ```
 
-**Working with GL/PL Values:**
+#### RSEM Simulation
 
-VCF files contain PL (Phred-scaled likelihoods). To convert to GL (log10):
-```
-GL = -PL/10
-```
-
-Extract GLs:
 ```bash
-bcftools query -f '%CHROM\t%POS\t[%PL\t]\n' file.vcf.gz
+# Simulate reads from RSEM model
+rsem-simulate-reads \
+  reference/rsem_ref \
+  estimated_model.stat/rsem_ref.model \
+  estimated_isoforms.results \
+  0.05 \
+  10000000 \
+  simulated_reads
+```
+
+### 5.2 Single-Cell RNA-seq Simulation
+
+#### Recommended Tools
+
+| Tool | Description | Installation |
+|------|-------------|--------------|
+| **Splatter** | R/Bioconductor scRNA-seq simulator | `BiocManager::install("splatter")` |
+| **scDesign2** | Statistical scRNA-seq simulator | `devtools::install_github("JSB-UCLA/scDesign2")` |
+| **SymSim** | Symmetric scRNA-seq simulator | `devtools::install_github("YosefLab/SymSim")` |
+| **SERGIO** | GRN-based scRNA-seq simulator | `pip install sergio` |
+
+#### Splatter Example
+
+```r
+# Install
+BiocManager::install("splatter")
+
+library(splatter)
+
+# Simulate single-cell data
+params <- newSplatParams(
+  nGenes = 10000,
+  batchCells = 1000,
+  group.prob = c(0.3, 0.3, 0.4),
+  de.prob = 0.1,
+  de.facLoc = 0.3
+)
+
+sim <- splatSimulate(params, method = "groups")
+
+# Extract counts
+counts <- counts(sim)
+```
+
+#### scDesign2 Example
+
+```r
+library(scDesign2)
+
+# Fit model to reference data
+copula_result <- fit_model_scDesign2(
+  reference_counts,
+  cell_type_labels,
+  marginal = "nb"
+)
+
+# Simulate new cells
+sim_counts <- simulate_count_scDesign2(
+  copula_result,
+  n_cell_new = 5000
+)
+```
+
+### 5.3 Integration with This Pipeline
+
+After simulating RNA-seq reads with external tools, you can use this pipeline for:
+
+1. **Alignment and quantification** via standard tools (STAR, Salmon, kallisto)
+2. **Downstream analysis** with simulated ground truth
+
+```bash
+# Example: Align Polyester output
+STAR --genomeDir star_index \
+  --readFilesIn simulated_reads/sample_01_1.fasta simulated_reads/sample_01_2.fasta \
+  --outFileNamePrefix aligned/sample_01_
 ```
 
 ---
@@ -320,7 +666,7 @@ Created by scripts as needed:
 
 ## Complete Script Reference
 
-### Genome Simulation
+### Genome Simulation Scripts
 | Script | Description |
 |--------|-------------|
 | `01_make_tandem_repeats.R` | Create repeat-stress genomes with tandem/motif repeats |
@@ -328,29 +674,29 @@ Created by scripts as needed:
 | `01c_fetch_marker_panel.R` | Download curated marker gene panel |
 | `01d_fetch_ref_files.R` | Download reference chromosomes (E. coli, Human, Maize) |
 
-### Read Simulation
+### DNA-seq Simulation Scripts
 | Script | Description |
 |--------|-------------|
 | `02_sim_illumina_art.R` | Simulate Illumina PE reads (ART) |
 | `03_sim_pacbio.R` | Simulate PacBio CLR/HiFi reads (PBSIM) |
 | `04_run_grid_both_pacbio.R` | Run coverage grid for Illumina + PacBio |
 
-### Assembly & Evaluation
+### Assembly & Evaluation Scripts
 | Script | Description |
 |--------|-------------|
 | `05_run_unicycler_grid_both.R` | Hybrid assembly with Unicycler |
 | `06_run_quast_both.R` | Evaluate assemblies with QUAST |
 | `07_summarize_quast.R` | Aggregate QUAST results to CSV |
 
-### Population Genetics
+### GWAS & Population Genetics Scripts
 | Script | Description |
 |--------|-------------|
-| `10_simulate_gwas_cohort.R` | GWAS cohort with LD, population structure |
+| `10_simulate_gwas_cohort.R` | GWAS cohort with LD, population structure, phenotypes |
 | `11_simulate_breeding.R` | F1, BC, RIL, NIL, DH, MAGIC, NAM breeding |
 | `11a_generate_random_haplotype_panel.R` | Generate random haplotype panel |
 | `12_simupop_api.R` | SimuPOP integration for complex breeding |
 
-### Cross-Species Introgression Pipeline
+### Cross-Species Introgression Scripts
 | Script | Description |
 |--------|-------------|
 | `20_prepare_aligned_haplotypes.sh` | Align divergent species chromosomes (minimap2) |
@@ -358,63 +704,6 @@ Created by scripts as needed:
 | `23d_fix_reference.sh` | Fix reference FASTA to match VCF REF alleles |
 | `23e_gen_all_fastas.sh` | Generate diploid FASTAs for all samples |
 | `25_simulate_reads_call_gl.sh` | Full pipeline: FASTA → reads → BAM → VCF with GL |
-
----
-
-## Detailed Parameter Reference
-
-### 01_make_tandem_repeats.R
-
-```bash
-Rscript scripts/mac/01_make_tandem_repeats.R [options]
-```
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `--mode` | `tandem`, `motif`, or `both` | `tandem` |
-| `--n_events` | Number of duplication events | 10 |
-| `--seg_len` | Duplicated segment length (bp) | 1000 |
-| `--copies` | Total copies in tandem | 3 |
-| `--motif` | Repeat motif string (e.g., `ATTA`) | - |
-| `--motif_repeat` | Repeats per block | 10 |
-| `--ploidy` | Number of genome copies | 2 |
-| `--ploidy_mode` | `identical` or `diverged` | `identical` |
-| `--ploidy_snp_rate` | SNP rate for diverged copies | 0.001 |
-| `--random_genome` | Generate random genome | false |
-| `--random_length` | Random genome length | 1000000 |
-| `--random_gc` | Random genome GC content | 0.5 |
-
-### 22_simulate_controlled_introgressions.R
-
-```bash
-Rscript scripts/mac/22_simulate_controlled_introgressions.R [options]
-```
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `--genome_size` | Simulated genome size (bp) | 100000000 |
-| `--n_samples` | Number of samples | 100 |
-| `--snp_density` | SNPs per bp | 0.01 |
-| `--frac_mixed` | Fraction of mixed samples | 0.5 |
-| `--frac_ref_alt` | Fraction of ref_alt samples | 0.25 |
-| `--frac_ref_het` | Fraction of ref_het samples | 0.25 |
-| `--min_introgression_len` | Minimum introgression length | 100000 |
-| `--max_introgression_len` | Maximum introgression length | 5000000 |
-| `--donor_fraction` | Target donor genome fraction | 0.125 |
-
-### 25_simulate_reads_call_gl.sh
-
-```bash
-./scripts/mac/25_simulate_reads_call_gl.sh [options]
-```
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `--fasta-dir` | Directory with sample FASTAs | `05_summary/bc2s3_fastas` |
-| `--out-dir` | Output directory | `05_summary/bc2s3_reads` |
-| `--coverages` | Coverage levels (CSV) | `10,8,4,1,0.5` |
-| `--threads` | Number of threads | 4 |
-| `--samples` | Specific samples to process | all |
 
 ---
 
@@ -452,6 +741,8 @@ If you use these tools in a publication, please cite:
 - **bcftools** - Variant calling
 - **minimap2** - Sequence alignment
 - **SimuPOP** - Population genetics simulation
+- **Polyester** - RNA-seq simulation (if used)
+- **Splatter** - scRNA-seq simulation (if used)
 
 ---
 
