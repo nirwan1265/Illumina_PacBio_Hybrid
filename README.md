@@ -9,7 +9,7 @@ This project provides a comprehensive toolkit for **genomic and transcriptomic d
 | Category | Capabilities |
 |----------|-------------|
 | **Genome Simulation** | Repeat-stress genomes, random genomes, ploidy simulation |
-| **DNA-seq Simulation** | Illumina PE (ART), PacBio CLR/HiFi (PBSIM), coverage grids |
+| **DNA-seq Simulation** | Illumina PE (ART), PacBio CLR/HiFi (PBSIM), Nanopore (Badread), coverage grids |
 | **GWAS Cohorts** | Population structure, LD blocks, causal variants, phenotypes |
 | **Breeding Populations** | F1, BC, RIL, NIL, DH, MAGIC, NAM schemes |
 | **Cross-Species Breeding** | Align divergent haplotypes, simulate controlled introgressions |
@@ -27,6 +27,9 @@ Create a conda environment with all required tools:
 conda create -n simitall -y -c conda-forge -c bioconda \
   r-base r-jsonlite r-reticulate r-optparse r-data.table \
   art pbsim unicycler quast samtools bcftools bwa seqkit pigz simupop minimap2
+
+# Install badread for Nanopore simulation
+pip install badread
 ```
 
 Activate:
@@ -149,7 +152,67 @@ Rscript scripts/mac/03_sim_pacbio.R \
 
 **Outputs:** `<outdir>/pb{HIFI,CLR}_cov<cov>_*.fastq.gz`
 
-### 2.3 Coverage Grid Simulation
+### 2.3 Oxford Nanopore Long Reads (Badread)
+
+Simulate Nanopore reads with realistic error profiles for different chemistry versions.
+
+```bash
+Rscript scripts/mac/03b_sim_nanopore.R \
+  01_simref/ecoli_repMed.fa \
+  02_reads/nanopore \
+  30 \
+  --model nanopore2023 \
+  --mean_len 15000 \
+  --seed 42
+```
+
+#### Parameters: `03b_sim_nanopore.R`
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `ref_fa` (pos 1) | Reference FASTA | required |
+| `outdir` (pos 2) | Output directory | required |
+| `coverage` (pos 3) | Coverage depth | required |
+| `--model` | Chemistry model preset | nanopore2023 |
+| `--mean_len` | Mean read length (bp) | 15000 |
+| `--len_sd` | Read length SD (bp) | 13000 |
+| `--identity` | Custom identity (mean,max,stdev) | - |
+| `--seed` | Random seed | 1 |
+
+#### Model Presets
+
+| Model | Chemistry | Identity | Use Case |
+|-------|-----------|----------|----------|
+| `nanopore2018` | R9.4 | ~87% | Legacy data simulation |
+| `nanopore2020` | R9.4.1 | ~92% | Standard MinION/GridION |
+| `nanopore2023` | R10.4.1 | ~98% | Q20+ simplex reads (default) |
+| `perfect` | - | 100% | Ground truth, no errors |
+
+#### Examples
+
+**Modern Q20+ reads (R10.4.1):**
+```bash
+Rscript scripts/mac/03b_sim_nanopore.R ref.fa output/ 30
+```
+
+**Legacy R9.4 reads:**
+```bash
+Rscript scripts/mac/03b_sim_nanopore.R ref.fa output/ 30 --model nanopore2018
+```
+
+**Ultra-long reads (N50 ~50kb):**
+```bash
+Rscript scripts/mac/03b_sim_nanopore.R ref.fa output/ 30 --mean_len 50000 --len_sd 40000
+```
+
+**Custom identity profile:**
+```bash
+Rscript scripts/mac/03b_sim_nanopore.R ref.fa output/ 30 --identity 95,99,2
+```
+
+**Outputs:** `<outdir>/nanopore_<model>_cov<cov>.fastq.gz`
+
+### 2.4 Coverage Grid Simulation
 
 Run systematic coverage combinations for benchmarking:
 
@@ -161,7 +224,7 @@ Rscript scripts/mac/04_run_grid_both_pacbio.R
 - Illumina: 10x, 20x, 30x, 40x, 60x, 80x
 - PacBio: 5x, 10x, 15x, 20x, 30x, 40x
 
-### 2.4 Hybrid Assembly Benchmarking
+### 2.5 Hybrid Assembly Benchmarking
 
 Complete pipeline from reference to assembly evaluation:
 
@@ -679,6 +742,7 @@ Created by scripts as needed:
 |--------|-------------|
 | `02_sim_illumina_art.R` | Simulate Illumina PE reads (ART) |
 | `03_sim_pacbio.R` | Simulate PacBio CLR/HiFi reads (PBSIM) |
+| `03b_sim_nanopore.R` | Simulate Nanopore reads (Badread) - R9.4, R10.4.1, ultra-long |
 | `04_run_grid_both_pacbio.R` | Run coverage grid for Illumina + PacBio |
 
 ### Assembly & Evaluation Scripts
@@ -736,6 +800,7 @@ Created by scripts as needed:
 If you use these tools in a publication, please cite:
 - **ART** - Illumina read simulation
 - **PBSIM / PBSIM3** - PacBio read simulation
+- **Badread** - Nanopore read simulation
 - **Unicycler** - Hybrid assembly
 - **QUAST** - Assembly evaluation
 - **bcftools** - Variant calling
