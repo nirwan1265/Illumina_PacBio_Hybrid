@@ -1,4 +1,4 @@
-# Illumina_PacBio_Hybrid
+# SIMulate IT ALL!!!
 
 ## Introduction
 
