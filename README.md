@@ -292,7 +292,7 @@ Rscript scripts/mac/10_simulate_gwas_cohort.R \
 | `--ld_block_size` | LD block size (bp) | 0 |
 | `--ld_haplotypes` | Haplotypes per block | 6 |
 
-**Phenotype:**
+**Phenotype (Basic):**
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
@@ -310,6 +310,183 @@ Rscript scripts/mac/10_simulate_gwas_cohort.R \
 | `--recomb_rate_sd` | SD of recombination rate | 0.3 |
 | `--recomb_hotspots` | Number of hotspots | 3 |
 | `--recomb_hotspot_mult` | Hotspot multiplier | 5.0 |
+
+---
+
+### 4.2 Advanced Phenotype Simulation (simplePHENOTYPES)
+
+For complex phenotype simulation with heritability control, dominance, epistasis, GxE interactions, and multi-trait pleiotropy, use the advanced phenotype simulator based on [simplePHENOTYPES](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03804-y).
+
+#### Basic Usage
+
+```bash
+# Simple additive trait with specified heritability
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file 05_summary/gwas_cohort.vcf \
+  --out_prefix 05_summary/phenotypes \
+  --heritability 0.5 \
+  --n_qtn 20
+```
+
+#### Genetic Architecture Models
+
+```bash
+# Additive + Dominance + Epistasis (full model)
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --n_add_qtn 15 --n_dom_qtn 8 --n_epi_qtn 6 \
+  --heritability 0.6 \
+  --degree_of_dom 0.5 \
+  --epi_interaction 2
+
+# MAF-dependent effects (rare variants = larger effects)
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --maf_dependent --maf_effect_alpha -0.5
+```
+
+#### Multi-Trait with Pleiotropy
+
+```bash
+# Three correlated traits with shared QTNs
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --n_traits 3 \
+  --heritability 0.4,0.5,0.6 \
+  --architecture pleiotropic \
+  --genetic_correlation 0.3 \
+  --residual_correlation 0.1
+```
+
+#### Gene-Environment Interaction
+
+```bash
+# GxE with continuous environment
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --heritability 0.4 \
+  --gxe --gxe_variance 0.1 \
+  --env_type continuous --env_effect 0.5
+```
+
+#### Binary Traits (Case-Control)
+
+```bash
+# Liability threshold model with 5% prevalence
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --binary --liability_threshold \
+  --prevalence 0.05 \
+  --heritability_liability 0.8
+
+# With extreme phenotype ascertainment
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --binary --prevalence 0.1 \
+  --ascertainment extreme --case_fraction 0.5
+```
+
+#### Covariates (Age, Sex, Batch)
+
+```bash
+# Add demographic covariates
+Rscript scripts/mac/10b_simulate_phenotypes.R \
+  --geno_file data.vcf --out_prefix pheno \
+  --add_covariates \
+  --age_effect 0.1 --sex_effect 0.3 \
+  --n_batches 5 --batch_variance 0.05
+```
+
+#### Complete Parameters: Advanced Phenotype Simulation
+
+**Heritability:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--heritability` | Narrow-sense h² (single or comma-separated) | 0.5 |
+| `--heritability_liability` | Liability-scale h² for binary traits | - |
+
+**Genetic Architecture:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--architecture` | `pleiotropic`, `partial`, `ld`, `independent` | pleiotropic |
+| `--n_qtn` | Total QTNs | 10 |
+| `--n_add_qtn` | Additive QTNs | same as n_qtn |
+| `--n_dom_qtn` | Dominance QTNs | 0 |
+| `--n_epi_qtn` | Epistatic QTNs | 0 |
+| `--epi_interaction` | Markers per epistatic interaction | 2 |
+
+**Effect Sizes:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--add_effect` | Additive effect size(s) | 0.1 |
+| `--dom_effect` | Dominance effect size(s) | 0.05 |
+| `--epi_effect` | Epistatic effect size(s) | 0.05 |
+| `--effect_distribution` | `normal`, `geometric`, `equal` | geometric |
+| `--maf_dependent` | Enable MAF-dependent effects | false |
+| `--maf_effect_alpha` | Effect ~ MAF^alpha (negative = rare larger) | -0.5 |
+
+**Dominance:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--degree_of_dom` | 0=additive, 1=complete dominance | 0 |
+
+**Multi-Trait / Pleiotropy:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--n_traits` | Number of traits | 1 |
+| `--genetic_correlation` | Genetic correlation between traits | 0 |
+| `--residual_correlation` | Residual correlation between traits | 0 |
+| `--pleiotropic_qtn` | Number of shared pleiotropic QTNs | all |
+| `--trait_specific_qtn` | Trait-specific QTNs (comma-separated) | - |
+
+**Gene-Environment Interaction:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--gxe` | Enable GxE simulation | false |
+| `--gxe_variance` | Variance explained by GxE | 0.1 |
+| `--env_type` | `continuous` or `binary` | continuous |
+| `--env_effect` | Main effect of environment | 0.5 |
+
+**Covariates:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--add_covariates` | Add age, sex, batch | false |
+| `--age_effect` | Effect of age (continuous) | 0.1 |
+| `--sex_effect` | Effect of sex (binary) | 0.3 |
+| `--n_batches` | Number of batch effects | 3 |
+| `--batch_variance` | Variance from batch effects | 0.05 |
+
+**Binary Traits:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--binary` | Convert to binary (case-control) | false |
+| `--prevalence` | Population disease prevalence | 0.1 |
+| `--liability_threshold` | Use liability threshold model | false |
+| `--ascertainment` | `none`, `balanced`, `extreme` | none |
+| `--case_fraction` | Target case fraction after ascertainment | 0.5 |
+
+**QTN Constraints:**
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--maf_min` | Minimum MAF for QTN selection | 0.05 |
+| `--maf_max` | Maximum MAF for QTN selection | 0.5 |
+| `--qtn_list` | File with specific QTN positions | - |
+
+**Outputs:**
+- `<prefix>.pheno.tsv` - Full phenotype table
+- `<prefix>.pheno.plink` - PLINK format (FID, IID, trait)
+- `<prefix>.pheno.gemma` - GEMMA format (trait values only)
+- `<prefix>.covariates.tsv` - Covariate file (if applicable)
+- `<prefix>.simulation_summary.txt` - Simulation parameters and statistics
 
 ---
 
@@ -784,13 +961,56 @@ Tool integration matrix for read simulation, variant calling, assembly, and popu
 
 ---
 
+### Supplementary Figure S2: Advanced Phenotype Simulation Validation
+
+![Figure S2](scripts/paper_fig/output/figS2_phenotype_simulation.png)
+
+Validation of advanced phenotype simulation using simplePHENOTYPES integration.
+
+**Panel A: Heritability Accuracy**
+
+Target vs. observed heritability across h² = 0.1 to 0.9. Mean absolute error: 0.005.
+
+| Target h² | Observed h² | Error |
+|-----------|-------------|-------|
+| 0.1 | 0.10 | 0.00 |
+| 0.3 | 0.30 | 0.00 |
+| 0.5 | 0.50 | 0.00 |
+| 0.7 | 0.70 | 0.00 |
+| 0.9 | 0.90 | 0.00 |
+
+**Panel B: Genetic Architecture Models**
+
+Variance decomposition across three models:
+- **Additive (A):** ~50% additive variance, ~50% residual
+- **Add + Dom (AD):** Additive + dominance variance components
+- **Add + Dom + Epi (ADE):** Full model with epistatic interactions
+
+**Panel C: Multi-Trait Genetic Correlations**
+
+Target genetic correlations (r_G = 0 to 1.0) accurately recovered in simulated multi-trait phenotypes.
+
+**Panel D: Binary Trait (Liability Threshold)**
+
+Liability threshold model accurately achieves target disease prevalence from 1% to 50%.
+
+**Panel E: Gene-Environment Interaction**
+
+GxE variance component correctly partitioned from additive genetic and residual variance.
+
+**Panel F: Covariate Effects**
+
+Age (continuous), sex (binary), and batch effects correctly incorporated into phenotype simulation.
+
+---
+
 ## INSTALLATION
 
 ### Create Conda Environment
 
 ```bash
 conda create -n simitall -y -c conda-forge -c bioconda \
-  r-base r-jsonlite r-reticulate r-optparse r-data.table \
+  r-base r-jsonlite r-reticulate r-optparse r-data.table r-simplephenotypes \
   art pbsim unicycler quast samtools bcftools bwa seqkit pigz simupop minimap2
 
 # Install badread for Nanopore simulation
@@ -862,6 +1082,7 @@ Use a path **without spaces** for reliable SPAdes/QUAST runs:
 | Script | Description |
 |--------|-------------|
 | `10_simulate_gwas_cohort.R` | GWAS cohort simulation |
+| `10b_simulate_phenotypes.R` | Advanced phenotype simulation (simplePHENOTYPES) |
 | `11_simulate_breeding.R` | Breeding population simulation |
 | `11a_generate_random_haplotype_panel.R` | Random haplotype panel |
 | `12_simupop_api.R` | SimuPOP integration |
@@ -884,6 +1105,7 @@ Use a path **without spaces** for reliable SPAdes/QUAST runs:
 | `fig5_introgression_simulation.R` | Introgression validation |
 | `fig6_rnaseq_simulation.R` | RNA-seq tool comparison |
 | `figS1_workflow_summary.R` | Toolkit overview |
+| `figS2_phenotype_simulation.R` | Phenotype simulation validation |
 
 ---
 
@@ -923,6 +1145,7 @@ If you use these tools in a publication, please cite:
 - **bcftools** - Danecek P, et al. GigaScience. 2021
 - **minimap2** - Li H. Bioinformatics. 2018
 - **SimuPOP** - Peng B, Kimmel M. Bioinformatics. 2005
+- **simplePHENOTYPES** - Fernandes SB, Lipka AE. BMC Bioinformatics. 2020
 - **Polyester** - Frazee AC, et al. Bioinformatics. 2015 (if used)
 - **Splatter** - Zappia L, et al. Genome Biol. 2017 (if used)
 
