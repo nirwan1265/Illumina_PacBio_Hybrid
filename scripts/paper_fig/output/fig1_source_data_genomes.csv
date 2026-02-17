@@ -1,0 +1,5 @@
+"type","length","gc","increase_pct"
+"Original",500000,0.518142,0
+"Low Stress",505000,0.518029702970297,1
+"Medium Stress",560000,0.520283928571429,12
+"High Stress",920000,0.51628152173913,84

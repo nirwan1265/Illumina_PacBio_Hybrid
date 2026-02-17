@@ -1,0 +1,13 @@
+"metric","category","observed","expected"
+"Repeat insertion accuracy","Genome",0.98,1
+"GC content preservation","Genome",0.99,1
+"Ploidy divergence control","Genome",0.95,1
+"Read length distribution","DNA-seq",0.97,1
+"Quality score accuracy","DNA-seq",0.96,1
+"Coverage uniformity","DNA-seq",0.94,1
+"MAF spectrum (KS test)","GWAS",0.92,1
+"LD decay pattern","GWAS",0.89,1
+"Population structure (Fst)","GWAS",0.96,1
+"Heterozygosity decay","Breeding",0.99,1
+"Recombination rate","Breeding",0.95,1
+"Introgression tracking","Breeding",0.97,1

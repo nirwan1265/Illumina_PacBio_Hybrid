@@ -1,0 +1,5 @@
+"Tool","Language","Ease of Use","Cell Types","Batch Effects","GRN Support"
+"Splatter","R",5,5,5,2
+"scDesign2","R",4,5,4,2
+"SymSim","R",3,4,3,3
+"SERGIO","Python",3,5,2,5
