@@ -1,0 +1,181 @@
+"model","component","variance"
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.414943664535279
+"Add + Dom","Dominance",0.0925971903081875
+"Add + Dom","Residual",0.492459145156534
+"Add + Dom + Epi","Additive",0.251311030329462
+"Add + Dom + Epi","Dominance",0.050558620786297
+"Add + Dom + Epi","Epistasis",0.157448671549299
+"Add + Dom + Epi","Residual",0.540681677334943
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.448577940362474
+"Add + Dom","Dominance",0.0489587514077272
+"Add + Dom","Residual",0.502463308229799
+"Add + Dom + Epi","Additive",0.407794315873487
+"Add + Dom + Epi","Dominance",0.0168094640984893
+"Add + Dom + Epi","Epistasis",0.0527038677642158
+"Add + Dom + Epi","Residual",0.522692352263808
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.392439767804842
+"Add + Dom","Dominance",0.116600628229543
+"Add + Dom","Residual",0.490959603965615
+"Add + Dom + Epi","Additive",0.398931253833976
+"Add + Dom + Epi","Dominance",0.0592927228118534
+"Add + Dom + Epi","Epistasis",0.0611345481930245
+"Add + Dom + Epi","Residual",0.480641475161146
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.439217855709129
+"Add + Dom","Dominance",0.0728845614727592
+"Add + Dom","Residual",0.487897582818112
+"Add + Dom + Epi","Additive",0.281254767783123
+"Add + Dom + Epi","Dominance",0.0418582906281201
+"Add + Dom + Epi","Epistasis",0.10728464469836
+"Add + Dom + Epi","Residual",0.569602296890397
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.400485566270654
+"Add + Dom","Dominance",0.0962185884868455
+"Add + Dom","Residual",0.5032958452425
+"Add + Dom + Epi","Additive",0.431004906081985
+"Add + Dom + Epi","Dominance",0.0272083623604679
+"Add + Dom + Epi","Epistasis",0.115607767053439
+"Add + Dom + Epi","Residual",0.426178964504108
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.424521403346071
+"Add + Dom","Dominance",0.0638649046135074
+"Add + Dom","Residual",0.511613692040421
+"Add + Dom + Epi","Additive",0.307512751994452
+"Add + Dom + Epi","Dominance",0.0721419764389715
+"Add + Dom + Epi","Epistasis",0.164905777880059
+"Add + Dom + Epi","Residual",0.455439493686518
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.442855712880277
+"Add + Dom","Dominance",0.0580016062585168
+"Add + Dom","Residual",0.499142680861206
+"Add + Dom + Epi","Additive",0.358940649736624
+"Add + Dom + Epi","Dominance",0.0294083464736708
+"Add + Dom + Epi","Epistasis",0.0878283141580996
+"Add + Dom + Epi","Residual",0.523822689631605
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.39053528691239
+"Add + Dom","Dominance",0.0979902719431958
+"Add + Dom","Residual",0.511474441144414
+"Add + Dom + Epi","Additive",0.440111106083876
+"Add + Dom + Epi","Dominance",0.0652170217936847
+"Add + Dom + Epi","Epistasis",0.00916611762891861
+"Add + Dom + Epi","Residual",0.48550575449352
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.430561827383757
+"Add + Dom","Dominance",0.0690190042885108
+"Add + Dom","Residual",0.500419168327732
+"Add + Dom + Epi","Additive",0.408928983576214
+"Add + Dom + Epi","Dominance",0.0276439057092056
+"Add + Dom + Epi","Epistasis",0.041450975840947
+"Add + Dom + Epi","Residual",0.521976134873633
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.442667579376573
+"Add + Dom","Dominance",0.0633019054247468
+"Add + Dom","Residual",0.49403051519868
+"Add + Dom + Epi","Additive",0.301682102746505
+"Add + Dom + Epi","Dominance",0.0322909368238819
+"Add + Dom + Epi","Epistasis",0.134317802658422
+"Add + Dom + Epi","Residual",0.531709157771192
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.405584548007581
+"Add + Dom","Dominance",0.0799717437065591
+"Add + Dom","Residual",0.51444370828586
+"Add + Dom + Epi","Additive",0.366109739054949
+"Add + Dom + Epi","Dominance",0.125724234650106
+"Add + Dom + Epi","Epistasis",0.014696914204579
+"Add + Dom + Epi","Residual",0.493469112090366
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.427097320720195
+"Add + Dom","Dominance",0.063429688519194
+"Add + Dom","Residual",0.509472990760611
+"Add + Dom + Epi","Additive",0.371639288732
+"Add + Dom + Epi","Dominance",0.0671534421090409
+"Add + Dom + Epi","Epistasis",0.0381440476290116
+"Add + Dom + Epi","Residual",0.523063221529948
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.423473802038023
+"Add + Dom","Dominance",0.0927573964903995
+"Add + Dom","Residual",0.483768801471577
+"Add + Dom + Epi","Additive",0.299291493755098
+"Add + Dom + Epi","Dominance",0.0411180972399405
+"Add + Dom + Epi","Epistasis",0.11480021258183
+"Add + Dom + Epi","Residual",0.544790196423131
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.346898656222879
+"Add + Dom","Dominance",0.145089987741888
+"Add + Dom","Residual",0.508011356035234
+"Add + Dom + Epi","Additive",0.357737693868896
+"Add + Dom + Epi","Dominance",0.0559791987078951
+"Add + Dom + Epi","Epistasis",0.116424289197166
+"Add + Dom + Epi","Residual",0.469858818226043
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.40852576615948
+"Add + Dom","Dominance",0.0942848449662301
+"Add + Dom","Residual",0.49718938887429
+"Add + Dom + Epi","Additive",0.414727103478539
+"Add + Dom + Epi","Dominance",0.0488371271811072
+"Add + Dom + Epi","Epistasis",0.0415576593796387
+"Add + Dom + Epi","Residual",0.494878109960715
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.467049085955561
+"Add + Dom","Dominance",0.038636788538141
+"Add + Dom","Residual",0.494314125506298
+"Add + Dom + Epi","Additive",0.410406668718069
+"Add + Dom + Epi","Dominance",0.0426307746569038
+"Add + Dom + Epi","Epistasis",0.0710088145226821
+"Add + Dom + Epi","Residual",0.475953742102345
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.425877111572714
+"Add + Dom","Dominance",0.0698137546260835
+"Add + Dom","Residual",0.504309133801203
+"Add + Dom + Epi","Additive",0.413381360932053
+"Add + Dom + Epi","Dominance",0.0472131613552022
+"Add + Dom + Epi","Epistasis",0.0365932281544546
+"Add + Dom + Epi","Residual",0.502812249558291
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.393314222585554
+"Add + Dom","Dominance",0.101005792495797
+"Add + Dom","Residual",0.505679984918649
+"Add + Dom + Epi","Additive",0.322077506822956
+"Add + Dom + Epi","Dominance",0.0452204196931456
+"Add + Dom + Epi","Epistasis",0.110478807288516
+"Add + Dom + Epi","Residual",0.522223266195382
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.387666609901947
+"Add + Dom","Dominance",0.0918964961791308
+"Add + Dom","Residual",0.520436893918922
+"Add + Dom + Epi","Additive",0.350112318218323
+"Add + Dom + Epi","Dominance",0.036743912586481
+"Add + Dom + Epi","Epistasis",0.0687260942048404
+"Add + Dom + Epi","Residual",0.544417674990355
+"Additive","Additive",0.5
+"Additive","Residual",0.5
+"Add + Dom","Additive",0.375522179420873
+"Add + Dom","Dominance",0.112417872693455
+"Add + Dom","Residual",0.512059947885672
+"Add + Dom + Epi","Additive",0.36255513079007
+"Add + Dom + Epi","Dominance",0.0386512890308887
+"Add + Dom + Epi","Epistasis",0.101176960161403
+"Add + Dom + Epi","Residual",0.497616620017638

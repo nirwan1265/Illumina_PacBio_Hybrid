@@ -263,7 +263,7 @@ LD decay is controlled by:
   - Block size: Larger blocks = longer-range LD
   - Number of haplotypes: More haplotypes = faster LD decay within blocks
 
-4.5 Phenotype Simulation
+4.5 Phenotype Simulation (Basic)
 
 Quantitative traits:
   Y_i = sum(beta_j × G_ij) + epsilon_i
@@ -282,6 +282,109 @@ Binary traits (case-control):
 Heritability is approximately:
   h^2 = Var(genetic) / (Var(genetic) + Var(environmental))
       = n_causal × effect_sd^2 × Var(G) / (n_causal × effect_sd^2 × Var(G) + 1)
+
+4.6 Advanced Phenotype Simulation (simplePHENOTYPES Integration)
+
+For complex phenotype simulation, we integrate the simplePHENOTYPES R package
+(Fernandes & Lipka, 2020) with custom extensions for GxE and covariates.
+
+4.6.1 Heritability-Based Effect Sizing
+
+Effects are scaled to achieve target narrow-sense heritability:
+  h² = Var(G) / Var(P) = Var(G) / (Var(G) + Var(E))
+
+For user-specified h², residual variance is calculated as:
+  Var(E) = Var(G) × (1 - h²) / h²
+
+4.6.2 Genetic Architecture Models
+
+Additive model (A):
+  Y_i = Σ_j(a_j × G_ij) + e_i
+
+Additive + Dominance model (AD):
+  Y_i = Σ_j(a_j × G_ij + d_j × D_ij) + e_i
+
+  Where D_ij is the dominance indicator:
+    D_ij = 1 if G_ij = 1 (heterozygote), 0 otherwise
+
+  Degree of dominance (k) ranges from:
+    k = 0: purely additive
+    k = 1: complete dominance
+    k > 1: overdominance
+
+Additive + Dominance + Epistasis model (ADE):
+  Y_i = Σ_j(a_j × G_ij) + Σ_j(d_j × D_ij) + Σ_{jk}(e_jk × G_ij × G_ik) + e_i
+
+  Epistatic interactions can involve 2+ loci.
+
+4.6.3 MAF-Dependent Effect Sizes
+
+Effect sizes scaled by minor allele frequency:
+  β_j = β_0 × MAF_j^α
+
+Where α < 0 (default -0.5) gives larger effects to rare variants,
+consistent with negative selection on deleterious alleles.
+
+4.6.4 Multi-Trait Simulation with Pleiotropy
+
+For K correlated traits, genetic values follow:
+  G ~ MVN(0, Σ_G)
+
+Where Σ_G is the genetic covariance matrix with:
+  - Diagonal: genetic variance per trait (h² × Var(P))
+  - Off-diagonal: genetic covariance (r_G × sqrt(Var_G1 × Var_G2))
+
+Pleiotropy types:
+  - Full pleiotropy: All QTNs affect all traits
+  - Partial pleiotropy: Some QTNs trait-specific
+  - Spurious pleiotropy: Correlation due to LD, not shared QTNs
+
+4.6.5 Gene-Environment Interaction (GxE)
+
+GxE model:
+  Y_i = G_i + E_i × β_E + G_i × E_i × β_GxE + e_i
+
+Environment types:
+  - Continuous: E ~ N(0, 1)
+  - Binary: E ~ Bernoulli(0.5)
+
+GxE variance component:
+  Var(GxE) = β_GxE² × Var(G) × Var(E)
+
+4.6.6 Covariate Simulation
+
+Covariates added to phenotype:
+  Y_i = G_i + age_i × β_age + sex_i × β_sex + batch_i + e_i
+
+Where:
+  - age_i ~ N(50, 15), scaled to unit variance
+  - sex_i ~ Bernoulli(0.5)
+  - batch_i ~ N(0, σ²_batch) for batch = 1, ..., B
+
+4.6.7 Binary Trait: Liability Threshold Model
+
+For case-control studies, we use the liability threshold model:
+
+1. Generate continuous liability: L_i ~ N(0, 1)
+2. Add genetic component: L_i = h × G_i + sqrt(1-h²) × e_i
+3. Apply threshold: case if L_i > Φ^(-1)(1 - K)
+
+Where:
+  - K = population prevalence
+  - Φ^(-1) = inverse standard normal CDF
+  - h² on liability scale can differ from observed scale
+
+Ascertainment options:
+  - None: Random sampling
+  - Balanced: Equal cases and controls
+  - Extreme: Oversample extreme liabilities
+
+4.6.8 Output Formats
+
+Phenotype outputs compatible with standard GWAS software:
+  - PLINK format: FID, IID, phenotype columns
+  - GEMMA format: phenotype values only (no header)
+  - General TSV: Full metadata with covariates
 
 --------------------------------------------------------------------------------
 5. BREEDING POPULATION SIMULATION MODULE
